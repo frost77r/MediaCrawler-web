@@ -17,8 +17,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:showCreateModal', value: boolean): void;
   (e: 'update:showEditModal', value: boolean): void;
-  (e: 'saveClue'): void;
-  (e: 'update:clueForm', value: Clue): void;
+  (e: 'saveClue', payload: Clue): void;
 }>();
 
 // Internal form state to allow direct v-model binding in the component
@@ -28,17 +27,13 @@ watch(() => props.clueForm, (newVal) => {
   internalClueForm.value = { ...newVal };
 }, { deep: true });
 
-watch(internalClueForm, (newVal) => {
-  emit('update:clueForm', newVal);
-}, { deep: true });
-
 const handleCloseModal = () => {
   emit('update:showCreateModal', false);
   emit('update:showEditModal', false);
 };
 
 const handleSave = () => {
-  emit('saveClue');
+  emit('saveClue', internalClueForm.value);
 };
 
 </script>

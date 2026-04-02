@@ -130,11 +130,13 @@ const handleOpenEdit = async (clue: Clue) => {
   }
 };
 
-const handleSaveClue = async () => {
-  if (!clueForm.value.clue_title) return alert('请填写线索标题');
-  
+const handleSaveClue = async (newClueData: Clue) => {
+  if (!newClueData.clue_title) return alert('请填写线索标题');
+
   isSubmitLoading.value = true;
   try {
+    clueForm.value = newClueData; // Update clueForm with data from modal
+
     if (clueForm.value.id) {
       await clueApi.update(clueForm.value.id, clueForm.value);
     } else {
