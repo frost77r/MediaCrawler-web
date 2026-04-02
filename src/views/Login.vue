@@ -32,7 +32,7 @@ const handleLogin = async () => {
         <div class="logo-wrapper">
           <Lock class="logo-icon" />
         </div>
-        <h1 class="brand-title">MediaCrawler Pro</h1>
+        <h1 class="brand-title">慧眸</h1>
         <p class="brand-subtitle">数据采集与分析一体化平台</p>
       </div>
 

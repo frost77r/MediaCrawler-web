@@ -44,7 +44,7 @@ const toggleSidebar = () => {
           <Activity class="logo-icon" />
         </div>
         <span v-if="isSidebarOpen" class="brand-name">
-          MediaCrawler
+          慧眸
         </span>
       </div>
 

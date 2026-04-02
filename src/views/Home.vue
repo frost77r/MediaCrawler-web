@@ -58,7 +58,7 @@ const navigateTo = (path: string) => {
         欢迎回来，<span class="gradient-text">系统管理员</span>
       </h2>
       <p class="welcome-desc">
-        MediaCrawler 调度指挥中心。请从下方选择您需要进入的业务模块。
+        慧眸 调度指挥中心。请从下方选择您需要进入的业务模块。
       </p>
     </div>
 
