@@ -53,6 +53,8 @@ const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const detailLoading = ref(false);
 const submitLoading = ref(false);
+const showDeleteConfirmModal = ref(false);
+const clueToDelete = ref<number | null>(null);
 
 const clueForm = ref({
   id: undefined as number | undefined,
@@ -64,7 +66,8 @@ const clueForm = ref({
   risk_level: 0,
   suspicious_reason: '',
   note_ids: [] as string[],
-  comment_ids: [] as string[]
+  comment_ids: [] as string[],
+  status: 0 // Default status for new clues
 });
 
 // 数据请求
@@ -93,7 +96,7 @@ const handleOpenCreate = () => {
   clueForm.value = {
     id: undefined, clue_no: '', clue_title: '', clue_desc: '', target_user_id: '',
     source_type: 'manual', risk_level: 0, suspicious_reason: '',
-    note_ids: [], comment_ids: []
+    note_ids: [], comment_ids: [], status: 0
   };
   showCreateModal.value = true;
 };
@@ -113,7 +116,8 @@ const handleOpenEdit = async (clue: Clue) => {
       risk_level: detail.risk_level,
       suspicious_reason: detail.suspicious_reason,
       note_ids: detail.notes.map((n: any) => n.note_id),
-      comment_ids: detail.comments.map((c: any) => c.comment_id)
+      comment_ids: detail.comments.map((c: any) => c.comment_id),
+      status: detail.status // Add status here
     };
   } catch (error) {
     console.error('获取编辑详情失败:', error);
@@ -168,14 +172,21 @@ const handleUpdateStatus = async (id: number, status: number) => {
   }
 };
 
-const handleDeleteClue = async (id: number) => {
-  if (!confirm('确定要永久删除该线索吗？')) return;
+const handleDeleteClue = (id: number) => {
+  clueToDelete.value = id;
+  showDeleteConfirmModal.value = true;
+};
+
+const confirmDeleteClue = async () => {
+  if (clueToDelete.value === null) return;
   try {
-    await clueApi.delete(id);
+    await clueApi.delete(clueToDelete.value);
     await fetchClues();
-    if (selectedClue.value?.id === id) {
+    if (selectedClue.value?.id === clueToDelete.value) {
       showDetailModal.value = false;
     }
+    showDeleteConfirmModal.value = false;
+    clueToDelete.value = null;
   } catch (error) {
     console.error('删除失败:', error);
   }
@@ -348,8 +359,16 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+
+            <div v-if="showEditModal" class="el-detail-group">
+              <div class="el-detail-title">流程处置</div>
+              <div class="el-status-btns">
+                <button v-for="s in [0, 1, 2, 3]" :key="s" @click="clueForm.status = s" class="status-btn" :class="[clueForm.status === s ? getStatusConfig(s).type : 'off']">{{ getStatusConfig(s).label }}</button>
+              </div>
+            </div>
+
           </main>
-          
+
           <footer class="el-dialog-footer">
             <button @click="showCreateModal = showEditModal = false" class="el-btn el-btn-text">取消</button>
             <button @click="handleSaveClue" class="el-btn el-btn-primary" :disabled="submitLoading">
@@ -417,8 +436,14 @@ onMounted(() => {
                 </div>
                 <div class="el-detail-group">
                   <div class="el-detail-title">流程处置</div>
-                  <div class="el-status-btns">
-                    <button v-for="s in [0, 1, 2, 3]" :key="s" @click="handleUpdateStatus(selectedClue.id, s)" class="status-btn" :class="[selectedClue.status === s ? getStatusConfig(s).type : 'off']">{{ getStatusConfig(s).label }}</button>
+                  <div class="el-attr-box">
+                    <div class="attr-item">
+                      <span class="label">当前状态</span>
+                      <span class="el-tag-status" :class="getStatusConfig(selectedClue.status).type">
+                        <component :is="getStatusConfig(selectedClue.status).icon" class="status-i" />
+                        {{ getStatusConfig(selectedClue.status).label }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -427,7 +452,27 @@ onMounted(() => {
         </div>
       </div>
     </transition>
-  </div>
+
+    <!-- 删除确认 弹窗 -->
+    <transition name="fade">
+      <div v-if="showDeleteConfirmModal" class="el-dialog-overlay" @click.self="showDeleteConfirmModal = false">
+        <div class="el-dialog-box small">
+          <header class="el-dialog-header">
+            <span class="el-dialog-title">确认删除</span>
+            <button @click="showDeleteConfirmModal = false" class="el-dialog-close"><X /></button>
+          </header>
+          <main class="el-dialog-body">
+            <p>确定要永久删除这条线索吗？删除后将无法恢复。</p>
+          </main>
+          <footer class="el-dialog-footer">
+            <button @click="showDeleteConfirmModal = false" class="el-btn el-btn-text">取消</button>
+            <button @click="confirmDeleteClue" class="el-btn el-btn-danger">确认删除</button>
+          </footer>
+        </div>
+      </div>
+    </transition>
+
+    </div>
 </template>
 
 <style scoped>
