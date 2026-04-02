@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Database, Search, User, Heart, MessageSquare, Calendar } from 'lucide-vue-next';
+import { Database, Search, User, Heart, MessageSquare, Calendar, Plus } from 'lucide-vue-next';
 import { dataApi } from '../api';
 import type { Note, Comment } from '../types';
 import CustomSelect from './CustomSelect.vue';
+import AddToClueModal from './AddToClueModal.vue';
 
 const platform = ref('xhs');
 const platformOptions = [
@@ -19,6 +20,23 @@ const activeNoteTitle = ref('');
 const searchQuery = ref('');
 const loadingNotes = ref(false);
 const loadingComments = ref(false);
+
+const showAddToClue = ref(false);
+const addToClueItemType = ref<'note' | 'comment'>('note');
+const addToClueItemId = ref('');
+const addToClueNoteId = ref('');
+
+const openAddToClue = (type: 'note' | 'comment', item: any) => {
+  addToClueItemType.value = type;
+  if (type === 'note') {
+    addToClueItemId.value = String(item.note_id || item.id || item.aweme_id || item.aid);
+    addToClueNoteId.value = '';
+  } else {
+    addToClueItemId.value = String(item.comment_id || item.id || '');
+    addToClueNoteId.value = activeNoteId.value || '';
+  }
+  showAddToClue.value = true;
+};
 
 const filteredNotes = computed(() => {
   if (!searchQuery.value) return notes.value;
@@ -164,6 +182,9 @@ const openNoteDetail = (note: Note) => {
               <span class="meta-item likes"><Heart class="w-3 h-3" /> {{ note.liked_count || note.like_count || note.digg_count || 0 }}</span>
               <span class="meta-item comments"><MessageSquare class="w-3 h-3" /> {{ note.comment_count || note.comments_count || 0 }}</span>
               <span v-if="note.time || note.create_time" class="meta-item"><Calendar class="w-3 h-3" /> {{ formatTime(note.time || note.create_time) }}</span>
+              <button class="add-to-lead-btn" @click.stop="openAddToClue('note', note)" title="添加至线索">
+                <Plus class="w-3 h-3" /> 线索
+              </button>
             </div>
             <div v-if="(note.desc || note.content) && (note.desc || note.content) !== note.title" class="note-desc">
               {{ (note.desc || note.content || '').replace(/<[^>]*>/g, '') }}
@@ -203,12 +224,23 @@ const openNoteDetail = (note: Note) => {
               <div class="comment-footer">
                 <span class="footer-item likes"><Heart class="w-2.5 h-2.5" /> {{ comment.like_count || comment.digg_count || comment.liked_count || 0 }}</span>
                 <span v-if="comment.create_time || comment.time" class="footer-item"><Calendar class="w-2.5 h-2.5" /> {{ formatDateTime(comment.create_time || comment.time) }}</span>
+                <button class="add-to-lead-btn mini" @click.stop="openAddToClue('comment', comment)" title="添加至线索">
+                  <Plus class="w-2.5 h-2.5" /> 线索
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Add to Clue Modal -->
+    <AddToClueModal 
+      v-model:show="showAddToClue" 
+      :item-type="addToClueItemType"
+      :item-id="addToClueItemId"
+      :note-id="addToClueNoteId"
+    />
   </div>
 </template>
 
@@ -485,5 +517,32 @@ const openNoteDetail = (note: Note) => {
 
 .footer-item.likes {
   color: rgba(244, 63, 94, 0.8);
+}
+
+.add-to-lead-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-to-lead-btn:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+.add-to-lead-btn.mini {
+  padding: 0.1rem 0.375rem;
+  font-size: 9px;
 }
 </style>

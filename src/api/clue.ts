@@ -16,4 +16,7 @@ export const clueApi = {
 
   delete: (clue_id: number) =>
     request.delete(`/clue/${clue_id}`),
+
+  addItem: (data: any) =>
+    request.post('/clue/add-item', data),
 };
