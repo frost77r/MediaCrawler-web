@@ -77,6 +77,7 @@ const clueForm = ref({
 // 数据请求
 const fetchClues = async () => {
   loading.value = true;
+  clues.value = []; // Clear existing clues immediately
   try {
     const params: any = {
       page: page.value,
@@ -330,6 +331,7 @@ onMounted(() => {
       :detailLoading="detailLoading"
       :getRiskConfig="getRiskConfig"
       :getStatusConfig="getStatusConfig"
+      :sourceOptions="sourceOptions"
     />
 
     <!-- 删除确认 弹窗 -->

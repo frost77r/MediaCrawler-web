@@ -9,6 +9,7 @@ const props = defineProps<{
   detailLoading: boolean;
   getRiskConfig: (level: number) => { label: string, type: string };
   getStatusConfig: (status: number) => { label: string, type: string, icon: any };
+  sourceOptions: { value: string; label: string; }[];
 }>();
 
 const emit = defineEmits<{
@@ -23,6 +24,11 @@ const formatDate = (ts: number) => {
   if (!ts) return '-';
   const date = new Date(ts * 1000);
   return date.toLocaleString();
+};
+
+const getSourceLabel = (sourceType: string) => {
+  const source = props.sourceOptions.find(option => option.value === sourceType);
+  return source ? source.label : sourceType;
 };
 </script>
 
@@ -77,7 +83,7 @@ const formatDate = (ts: number) => {
                 <div class="el-detail-title">线索属性</div>
                 <div class="el-attr-box">
                   <div class="attr-item"><span class="label">风险等级</span><span class="el-tag" :class="props.getRiskConfig(props.selectedClue.risk_level).type">{{ props.getRiskConfig(props.selectedClue.risk_level).label }}</span></div>
-                  <div class="attr-item"><span class="label">来源渠道</span><span class="val">{{ props.selectedClue.source_type }}</span></div>
+                  <div class="attr-item"><span class="label">来源渠道</span><span class="val">{{ getSourceLabel(props.selectedClue.source_type) }}</span></div>
                   <div class="attr-item"><span class="label">命中规则</span><span class="rule">#{{ props.selectedClue.hit_rule_code }}</span></div>
                 </div>
               </div>
