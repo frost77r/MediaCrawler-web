@@ -72,3 +72,43 @@ export interface Comment {
   time?: number | string;
   add_ts?: number | string;
 }
+
+export interface Clue {
+  id: number;
+  clue_no: string;
+  clue_title: string;
+  clue_desc: string;
+  target_user_id: string;
+  source_type: string;
+  source_keyword: string;
+  hit_rule_code: string;
+  hit_rule_name: string;
+  suspicious_reason: string;
+  evidence_summary: string;
+  risk_level: number;
+  status: number;
+  handler: string;
+  handle_result: string;
+  create_time: number;
+  update_time: number;
+}
+
+export interface ClueNoteRel {
+  note_id: string;
+  relation_type: string;
+  evidence_flag: number;
+  remark: string;
+}
+
+export interface ClueCommentRel {
+  comment_id: string;
+  note_id: string;
+  relation_type: string;
+  evidence_flag: number;
+  remark: string;
+}
+
+export interface ClueDetail extends Clue {
+  notes: ClueNoteRel[];
+  comments: ClueCommentRel[];
+}
