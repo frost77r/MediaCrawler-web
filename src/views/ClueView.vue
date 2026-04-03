@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { 
   Search, Filter, AlertTriangle, CheckCircle2, 
   Clock, ExternalLink, Trash2, Plus,
   ChevronLeft, ChevronRight, Eye, ShieldAlert,
-  Construction, X, PencilLine
+  Construction, X, PencilLine, MoreHorizontal,
+  Download, Users, ArrowRightLeft, Ban, ChevronDown, ChevronUp
 } from 'lucide-vue-next';
 import { clueApi } from '../api/clue';
 import type { Clue, ClueDetail } from '../types';
@@ -19,10 +20,24 @@ const clues = ref<Clue[]>([]);
 const total = ref(0);
 const page = ref(1);
 const pageSize = ref(15);
+
+// 筛选状态
+const showAdvancedFilter = ref(false);
+const selectedIds = ref<number[]>([]);
 const filters = ref({
+  keyword: '',
+  source_type: 'all',
   status: 'all' as any,
   risk_level: 'all' as any,
-  keyword: ''
+  time_range: 'create_time',
+  start_time: '',
+  end_time: '',
+  // 高级筛选
+  source_keyword: '',
+  hit_rule: '',
+  handler: '',
+  platform: 'all',
+  is_core_evidence: 'all'
 });
 
 // 下拉框配置
@@ -36,21 +51,28 @@ const statusOptions = [
 
 const riskLevelOptions = [
   { value: 'all', label: '全部风险' },
-  { value: 0, label: '低风险' },
-  { value: 1, label: '中风险' },
-  { value: 2, label: '高风险' },
+  { value: 0, label: '低' },
+  { value: 1, label: '中' },
+  { value: 2, label: '高' },
   { value: 3, label: '严重' }
 ];
 
 const sourceOptions = [
+  { value: 'all', label: '全部来源' },
   { value: 'manual', label: '手动录入' },
-  { value: 'rule', label: '规则引擎' },
-  { value: 'note', label: '笔记分析' },
-  { value: 'comment', label: '评论分析' }
+  { value: 'rule', label: '系统规则' },
+  { value: 'note', label: '帖子' },
+  { value: 'comment', label: '评论' }
+];
+
+const platformOptions = [
+  { value: 'all', label: '全部平台' },
+  { value: 'xhs', label: '小红书' },
+  { value: 'douyin', label: '抖音' },
+  { value: 'bilibili', label: 'B站' }
 ];
 
 // 模态框控制
-
 const isDetailModalVisible = ref(false);
 const selectedClueForDetail = ref<ClueDetail | null>(null);
 const showDeleteConfirmModal = ref(false);
@@ -58,34 +80,39 @@ const isCreateModalVisible = ref(false);
 const isEditModalVisible = ref(false);
 const isSubmitLoading = ref(false);
 const detailLoading = ref(false);
-const clueToDelete = ref<number | null>(null);
+const clueToDelete = ref<number | number[] | null>(null);
 
-const clueForm = ref({
-  id: undefined as number | undefined,
+const clueForm = ref<Clue>({
   clue_no: '',
   clue_title: '',
   clue_desc: '',
   target_user_id: '',
+  target_user_nickname: '',
   source_type: 'manual',
   risk_level: 0,
   suspicious_reason: '',
-  note_ids: [] as string[],
-  comment_ids: [] as string[],
-  status: 0 // Default status for new clues
+  evidence_summary: '',
+  status: 0,
+  note_ids: [],
+  comment_ids: []
 });
 
 // 数据请求
 const fetchClues = async () => {
   loading.value = true;
-  clues.value = []; // Clear existing clues immediately
   try {
     const params: any = {
       page: page.value,
       page_size: pageSize.value,
-      keyword: filters.value.keyword || undefined
+      keyword: filters.value.keyword || undefined,
+      source_type: filters.value.source_type !== 'all' ? filters.value.source_type : undefined,
+      status: filters.value.status !== 'all' ? filters.value.status : undefined,
+      risk_level: filters.value.risk_level !== 'all' ? filters.value.risk_level : undefined,
+      source_keyword: filters.value.source_keyword || undefined,
+      hit_rule: filters.value.hit_rule || undefined,
+      handler: filters.value.handler || undefined,
+      platform: filters.value.platform !== 'all' ? filters.value.platform : undefined
     };
-    if (filters.value.status !== 'all') params.status = filters.value.status;
-    if (filters.value.risk_level !== 'all') params.risk_level = filters.value.risk_level;
 
     const res: any = await clueApi.list(params);
     clues.value = res.items;
@@ -97,11 +124,54 @@ const fetchClues = async () => {
   }
 };
 
+const resetFilters = () => {
+  filters.value = {
+    keyword: '',
+    source_type: 'all',
+    status: 'all',
+    risk_level: 'all',
+    time_range: 'create_time',
+    start_time: '',
+    end_time: '',
+    source_keyword: '',
+    hit_rule: '',
+    handler: '',
+    platform: 'all',
+    is_core_evidence: 'all'
+  };
+  fetchClues();
+};
+
+// 批量操作
+const toggleSelectAll = () => {
+  if (selectedIds.value.length === clues.value.length) {
+    selectedIds.value = [];
+  } else {
+    selectedIds.value = clues.value.map(c => c.id!).filter(id => id !== undefined);
+  }
+};
+
+const handleBulkDelete = () => {
+  if (selectedIds.value.length === 0) return;
+  clueToDelete.value = [...selectedIds.value];
+  showDeleteConfirmModal.value = true;
+};
+
+// 弹窗逻辑
 const handleOpenCreate = () => {
   clueForm.value = {
-    id: undefined, clue_no: '', clue_title: '', clue_desc: '', target_user_id: '',
-    source_type: 'manual', risk_level: 0, suspicious_reason: '',
-    note_ids: [], comment_ids: [], status: 0
+    clue_no: '',
+    clue_title: '',
+    clue_desc: '',
+    target_user_id: '',
+    target_user_nickname: '',
+    source_type: 'manual',
+    risk_level: 0,
+    suspicious_reason: '',
+    evidence_summary: '',
+    status: 0,
+    note_ids: [],
+    comment_ids: []
   };
   isCreateModalVisible.value = true;
 };
@@ -110,19 +180,11 @@ const handleOpenEdit = async (clue: Clue) => {
   detailLoading.value = true;
   isEditModalVisible.value = true;
   try {
-    const detail: any = await clueApi.getDetail(clue.id);
+    const detail: any = await clueApi.getDetail(clue.id!);
     clueForm.value = {
-      id: detail.id,
-      clue_no: detail.clue_no,
-      clue_title: detail.clue_title,
-      clue_desc: detail.clue_desc,
-      target_user_id: detail.target_user_id,
-      source_type: detail.source_type,
-      risk_level: detail.risk_level,
-      suspicious_reason: detail.suspicious_reason,
-      note_ids: detail.notes.map((n: any) => n.note_id),
-      comment_ids: detail.comments.map((c: any) => c.comment_id),
-      status: detail.status // Add status here
+      ...detail,
+      note_ids: detail.notes?.map((n: any) => n.note_id) || [],
+      comment_ids: detail.comments?.map((c: any) => c.comment_id) || []
     };
   } catch (error) {
     console.error('获取编辑详情失败:', error);
@@ -131,22 +193,17 @@ const handleOpenEdit = async (clue: Clue) => {
   }
 };
 
-const handleSaveClue = async (newClueData: Clue) => {
-  if (!newClueData.clue_title) return alert('请填写线索标题');
-
+const handleSaveClue = async (data: Clue) => {
   isSubmitLoading.value = true;
   try {
-    clueForm.value = newClueData; // Update clueForm with data from modal
-
-    if (clueForm.value.id) {
-      await clueApi.update(clueForm.value.id, clueForm.value);
+    if (data.id) {
+      await clueApi.update(data.id, data);
     } else {
-      clueForm.value.clue_no = 'CLUE-' + Date.now().toString().slice(-6);
-      await clueApi.create(clueForm.value);
+      await clueApi.create(data);
     }
     isCreateModalVisible.value = false;
     isEditModalVisible.value = false;
-    await fetchClues();
+    fetchClues();
   } catch (error) {
     console.error('保存失败:', error);
   } finally {
@@ -167,31 +224,24 @@ const handleViewDetail = async (id: number) => {
   }
 };
 
-const handleUpdateStatus = async (id: number, status: number) => {
-  try {
-    await clueApi.update(id, { status });
-    if (selectedClueForDetail.value && selectedClueForDetail.value.id === id) {
-      selectedClueForDetail.value.status = status;
-    }
-    await fetchClues();
-  } catch (error) {
-    console.error('更新状态失败:', error);
-  }
-};
-
 const handleDeleteClue = (id: number) => {
   clueToDelete.value = id;
   showDeleteConfirmModal.value = true;
 };
 
 const confirmDeleteClue = async () => {
-  if (clueToDelete.value === null) return;
+  if (!clueToDelete.value) return;
   try {
-    await clueApi.delete(clueToDelete.value);
-    await fetchClues();
-    if (selectedClueForDetail.value?.id === clueToDelete.value) {
-      isDetailModalVisible.value = false;
+    if (Array.isArray(clueToDelete.value)) {
+      // 批量删除
+      for (const id of clueToDelete.value) {
+        await clueApi.delete(id);
+      }
+      selectedIds.value = [];
+    } else {
+      await clueApi.delete(clueToDelete.value);
     }
+    fetchClues();
     showDeleteConfirmModal.value = false;
     clueToDelete.value = null;
   } catch (error) {
@@ -199,14 +249,15 @@ const confirmDeleteClue = async () => {
   }
 };
 
+// 工具函数
 const getRiskConfig = (level: number) => {
-  const configs: Record<number, { label: string, type: string }> = {
-    0: { label: '低', type: 'low' },
-    1: { label: '中', type: 'medium' },
-    2: { label: '高', type: 'high' },
-    3: { label: '严重', type: 'severe' }
+  const configs: Record<number, { label: string, type: string, color: string }> = {
+    0: { label: '低', type: 'low', color: '#67c23a' },
+    1: { label: '中', type: 'medium', color: '#e6a23c' },
+    2: { label: '高', type: 'high', color: '#f56c6c' },
+    3: { label: '严重', type: 'severe', color: '#ff0000' }
   };
-  return configs[level] || { label: '未知', type: 'unknown' };
+  return configs[level] || { label: '未知', type: 'unknown', color: '#909399' };
 };
 
 const getStatusConfig = (status: number) => {
@@ -219,7 +270,17 @@ const getStatusConfig = (status: number) => {
   return configs[status] || { label: '未知', type: 'unknown', icon: Clock };
 };
 
-const formatDate = (ts: number) => {
+const getSourceLabel = (type: string) => {
+  const types: Record<string, string> = {
+    'manual': '手动录入',
+    'rule': '系统规则',
+    'note': '帖子',
+    'comment': '评论'
+  };
+  return types[type] || type;
+};
+
+const formatDate = (ts: number | undefined) => {
   if (!ts) return '-';
   const date = new Date(ts * 1000);
   return date.toLocaleString();
@@ -232,70 +293,159 @@ onMounted(() => {
 
 <template>
   <div class="clue-management">
-    <!-- 头部工具栏 -->
-    <header class="clue-header-bar">
+    <!-- 头部：标题与副标题 -->
+    <header class="page-header">
       <div class="title-section">
         <h2 class="main-title"><ShieldAlert class="icon-title" /> 线索管理</h2>
         <span class="sub-subtitle">智能化风险预警与线索跟踪系统</span>
       </div>
-
-      <div class="action-section">
-        <div class="filter-group">
-          <div class="search-input">
-            <Search class="icon-search" />
-            <input v-model="filters.keyword" @keyup.enter="fetchClues" placeholder="搜索标题/用户ID..." class="el-style-input">
-          </div>
-          <div class="select-box"><CustomSelect v-model="filters.status" :options="statusOptions" @change="fetchClues" /></div>
-          <div class="select-box"><CustomSelect v-model="filters.risk_level" :options="riskLevelOptions" @change="fetchClues" /></div>
-          <button @click="fetchClues" class="el-btn el-btn-info"><Filter class="btn-i" /> 筛选</button>
-        </div>
-        <button @click="handleOpenCreate" class="el-btn el-btn-primary"><Plus class="btn-i" /> 手动录入</button>
-      </div>
     </header>
 
-    <!-- 表格区域 -->
-    <div class="clue-data-card">
-      <div class="table-scroll-area custom-scrollbar">
-        <table class="el-table-mock">
+    <!-- 筛选区 -->
+    <div class="filter-container">
+      <div class="filter-main">
+        <div class="filter-item search-box">
+          <div class="input-wrapper">
+            <Search class="icon-search" />
+            <input v-model="filters.keyword" @keyup.enter="fetchClues" placeholder="搜索标题/编号/用户/内容..." class="custom-input">
+          </div>
+        </div>
+        <div class="filter-item">
+          <CustomSelect v-model="filters.source_type" :options="sourceOptions" @change="fetchClues" />
+        </div>
+        <div class="filter-item">
+          <CustomSelect v-model="filters.status" :options="statusOptions" @change="fetchClues" />
+        </div>
+        <div class="filter-item">
+          <CustomSelect v-model="filters.risk_level" :options="riskLevelOptions" @change="fetchClues" />
+        </div>
+        <div class="filter-actions">
+          <button @click="fetchClues" class="btn btn-primary"><Filter class="w-4 h-4" /> 筛选</button>
+          <button @click="resetFilters" class="btn btn-ghost">重置</button>
+          <button @click="showAdvancedFilter = !showAdvancedFilter" class="btn btn-link">
+            {{ showAdvancedFilter ? '收起高级' : '高级筛选' }}
+            <component :is="showAdvancedFilter ? ChevronUp : ChevronDown" class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <!-- 高级筛选 -->
+      <transition name="expand">
+        <div v-if="showAdvancedFilter" class="filter-advanced">
+          <div class="adv-grid">
+            <div class="adv-item">
+              <label>来源关键词</label>
+              <input v-model="filters.source_keyword" placeholder="关键词..." class="custom-input">
+            </div>
+            <div class="adv-item">
+              <label>命中规则</label>
+              <input v-model="filters.hit_rule" placeholder="规则名称..." class="custom-input">
+            </div>
+            <div class="adv-item">
+              <label>处理人</label>
+              <input v-model="filters.handler" placeholder="姓名..." class="custom-input">
+            </div>
+            <div class="adv-item">
+              <label>所属平台</label>
+              <CustomSelect v-model="filters.platform" :options="platformOptions" />
+            </div>
+          </div>
+        </div>
+      </transition>
+    </div>
+
+    <!-- 操作区 -->
+    <div class="action-bar">
+      <div class="bulk-actions">
+        <template v-if="selectedIds.length > 0">
+          <span class="selection-info">已选 {{ selectedIds.length }} 项</span>
+          <button class="btn btn-secondary btn-sm"><Users class="w-3.5 h-3.5" /> 批量分派</button>
+          <button class="btn btn-secondary btn-sm"><ArrowRightLeft class="w-3.5 h-3.5" /> 修改状态</button>
+          <button class="btn btn-secondary btn-sm"><Ban class="w-3.5 h-3.5" /> 批量忽略</button>
+          <button @click="handleBulkDelete" class="btn btn-danger btn-sm"><Trash2 class="w-3.5 h-3.5" /> 批量删除</button>
+        </template>
+      </div>
+      <div class="right-actions">
+        <button class="btn btn-ghost btn-sm"><Download class="w-4 h-4" /> 导出</button>
+        <button @click="handleOpenCreate" class="btn btn-primary"><Plus class="w-4 h-4" /> 新增线索</button>
+      </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="table-container">
+      <div class="table-wrapper custom-scrollbar">
+        <table class="data-table">
           <thead>
             <tr>
-              <th style="width: 200px">线索标题</th>
-              <th style="width: 350px">描述摘要</th>
-              <th style="width: 120px">风险等级</th>
+              <th class="checkbox-col">
+                <input type="checkbox" :checked="selectedIds.length === clues.length && clues.length > 0" @change="toggleSelectAll">
+              </th>
+              <th style="width: 120px">线索编号</th>
+              <th style="width: 150px">线索标题</th>
+              <th style="width: 120px">线索来源</th>
+              <th style="width: 200px">来源内容摘要</th>
+              <th style="width: 100px">风险等级</th>
               <th style="width: 120px">处理状态</th>
-              <th style="width: 150px">目标用户</th>
-              <th style="width: 180px">发现时间</th>
-              <th style="width: 160px">管理操作</th>
+              <th style="width: 120px">目标用户</th>
+              <th style="width: 80px">关联数</th>
+              <th style="width: 160px">发现时间</th>
+              <th style="width: 120px">操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="loading" v-for="i in 5" :key="i" class="loading-row">
-              <td colspan="7"><div class="el-skeleton-item"></div></td>
+            <tr v-if="loading" v-for="i in 10" :key="i" class="skeleton-row">
+              <td colspan="11"><div class="skeleton-bar"></div></td>
             </tr>
             <tr v-else-if="clues.length === 0">
-              <td colspan="7" class="el-empty-cell">暂无相关数据</td>
+              <td colspan="11" class="empty-row">暂无相关线索数据</td>
             </tr>
-            <tr v-for="clue in clues" :key="clue.id">
-              <td class="bold-text">{{ clue.clue_title || '未命名' }}</td>
-              <td class="muted-text ellipsis">{{ clue.clue_desc || '-' }}</td>
+            <tr v-for="clue in clues" :key="clue.id" :class="{ selected: selectedIds.includes(clue.id!) }">
+              <td class="checkbox-col">
+                <input type="checkbox" v-model="selectedIds" :value="clue.id">
+              </td>
+              <td class="mono-text">{{ clue.clue_no || 'CLUE-0000' }}</td>
+              <td class="clue-title" :title="clue.clue_title">{{ clue.clue_title }}</td>
               <td>
-                <span class="el-tag" :class="getRiskConfig(clue.risk_level).type">
-                  {{ getRiskConfig(clue.risk_level).label }}
+                <span class="source-tag" :class="clue.source_type">
+                  {{ getSourceLabel(clue.source_type || 'manual') }}
+                </span>
+              </td>
+              <td class="summary-cell" :title="clue.clue_desc || clue.source_content_summary">
+                <div class="summary-content">
+                  <span class="source-id" v-if="clue.source_note_id">#{{ clue.source_note_id.slice(-6) }}</span>
+                  {{ clue.source_content_summary || clue.clue_desc || '-' }}
+                </div>
+              </td>
+              <td>
+                <div class="risk-indicator">
+                  <span class="risk-dot" :style="{ backgroundColor: getRiskConfig(clue.risk_level || 0).color }"></span>
+                  {{ getRiskConfig(clue.risk_level || 0).label }}
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" :class="getStatusConfig(clue.status || 0).type">
+                  <component :is="getStatusConfig(clue.status || 0).icon" class="w-3 h-3" />
+                  {{ getStatusConfig(clue.status || 0).label }}
                 </span>
               </td>
               <td>
-                <span class="el-tag-status" :class="getStatusConfig(clue.status).type">
-                  <component :is="getStatusConfig(clue.status).icon" class="status-i" />
-                  {{ getStatusConfig(clue.status).label }}
-                </span>
+                <div class="user-info">
+                  <div class="user-nick">{{ clue.target_user_nickname || '-' }}</div>
+                  <div class="user-id">{{ clue.target_user_id || '-' }}</div>
+                </div>
               </td>
-              <td class="mono-text">{{ clue.target_user_id || '系统匹配' }}</td>
+              <td>
+                <div class="count-badges">
+                  <span class="count-tag" title="帖子">{{ clue.related_note_count || 0 }}</span>
+                  <span class="count-tag secondary" title="评论">{{ clue.related_comment_count || 0 }}</span>
+                </div>
+              </td>
               <td class="time-text">{{ formatDate(clue.create_time) }}</td>
-              <td class="text-center">
-                <div class="el-button-group">
-                  <button @click="handleViewDetail(clue.id)" class="icon-btn-el view" title="详情"><Eye /></button>
-                  <button @click="handleOpenEdit(clue)" class="icon-btn-el edit" title="编辑"><PencilLine /></button>
-                  <button @click="handleDeleteClue(clue.id)" class="icon-btn-el delete" title="删除"><Trash2 /></button>
+              <td>
+                <div class="op-group">
+                  <button @click="handleViewDetail(clue.id!)" class="op-btn view" title="详情"><Eye /></button>
+                  <button @click="handleOpenEdit(clue)" class="op-btn edit" title="编辑"><PencilLine /></button>
+                  <button @click="handleDeleteClue(clue.id!)" class="op-btn delete" title="删除"><Trash2 /></button>
                 </div>
               </td>
             </tr>
@@ -303,25 +453,29 @@ onMounted(() => {
         </table>
       </div>
 
-      <!-- 分页栏 -->
-      <footer class="el-pagination-mock">
-        <span class="pagination-info">共 <b>{{ total }}</b> 条记录</span>
-        <div class="pagination-btns">
-          <button :disabled="page === 1" @click="page--; fetchClues()" class="page-btn"><ChevronLeft /></button>
-          <span class="page-num">第 {{ page }} 页</span>
-          <button :disabled="page * pageSize >= total" @click="page++; fetchClues()" class="page-btn"><ChevronRight /></button>
+      <!-- 分页 -->
+      <footer class="pagination">
+        <div class="pagination-info">
+          共 <span class="total-count">{{ total }}</span> 条线索
+        </div>
+        <div class="pagination-controls">
+          <button :disabled="page === 1" @click="page--; fetchClues()" class="page-btn">
+            <ChevronLeft class="w-4 h-4" />
+          </button>
+          <span class="page-indicator">第 {{ page }} 页</span>
+          <button :disabled="page * pageSize >= total" @click="page++; fetchClues()" class="page-btn">
+            <ChevronRight class="w-4 h-4" />
+          </button>
         </div>
       </footer>
     </div>
 
+    <!-- 弹窗组件 -->
     <ClueCreateEditModal
       v-model:showCreateModal="isCreateModalVisible"
       v-model:showEditModal="isEditModalVisible"
       v-model:clueForm="clueForm"
       :submitLoading="isSubmitLoading"
-      :riskLevelOptions="riskLevelOptions"
-      :sourceOptions="sourceOptions"
-      :getStatusConfig="getStatusConfig"
       @saveClue="handleSaveClue"
     />
 
@@ -329,239 +483,301 @@ onMounted(() => {
       v-model:showDetailModal="isDetailModalVisible"
       :selectedClue="selectedClueForDetail"
       :detailLoading="detailLoading"
-      :getRiskConfig="getRiskConfig"
-      :getStatusConfig="getStatusConfig"
-      :sourceOptions="sourceOptions"
+      @update-status="fetchClues"
+      @edit="handleOpenEdit"
+      @delete="handleDeleteClue"
     />
 
-    <!-- 删除确认 弹窗 -->
     <ClueDeleteConfirmModal
       v-model:showDeleteConfirmModal="showDeleteConfirmModal"
+      :isBatch="Array.isArray(clueToDelete)"
+      :count="Array.isArray(clueToDelete) ? clueToDelete.length : 1"
       @confirmDelete="confirmDeleteClue"
     />
-
-    </div>
+  </div>
 </template>
 
 <style scoped>
-/* 核心容器 */
 .clue-management {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 20px 24px;
+  padding: 1.5rem 2rem;
   background-color: transparent;
-  gap: 20px;
+  gap: 1.5rem;
+  color: #e2e8f0;
 }
 
-/* 顶部栏 */
-.clue-header-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Header */
+.page-header {
   flex-shrink: 0;
 }
-
-.title-section {
-  display: flex;
-  flex-direction: column;
-}
-
 .main-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 24px;
+  gap: 0.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
+  margin-bottom: 0.25rem;
+}
+.icon-title { color: #f59e0b; }
+.sub-subtitle { font-size: 0.875rem; color: #94a3b8; font-style: italic; }
+
+/* Filter Container */
+.filter-container {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.icon-title { color: #fbbf24; }
-.sub-subtitle { font-size: 13px; color: #64748b; font-style: italic; }
+.filter-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
 
-.action-section {
+.search-box { width: 300px; }
+.input-wrapper { position: relative; width: 100%; }
+.icon-search { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 1rem; color: #64748b; }
+.custom-input {
+  width: 100%;
+  height: 36px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding-left: 2.25rem;
+  padding-right: 0.75rem;
+  color: #fff;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s;
+}
+.custom-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+
+.filter-item { min-width: 140px; }
+.filter-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
+
+/* Advanced Filter */
+.filter-advanced {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.adv-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.adv-item { display: flex; flex-direction: column; gap: 0.5rem; }
+.adv-item label { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+
+/* Action Bar */
+.action-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+.bulk-actions { display: flex; align-items: center; gap: 0.75rem; }
+.selection-info { font-size: 0.875rem; color: #3b82f6; font-weight: 600; margin-right: 0.5rem; }
+.right-actions { display: flex; align-items: center; gap: 0.75rem; }
 
-.filter-group {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* Element 风格输入框 */
-.el-style-input {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  padding: 0 12px 0 32px;
-  height: 32px;
-  color: #fff;
-  font-size: 13px;
-  outline: none;
-  transition: all 0.2s;
-}
-.el-style-input:focus { border-color: #409eff; }
-
-.search-input { position: relative; width: 220px; }
-.icon-search { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; color: #64748b; }
-
-.select-box { width: 130px; }
-
-/* Element 风格按钮 */
-.el-btn {
+/* Buttons */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 16px;
-  font-size: 13px;
+  gap: 0.5rem;
+  height: 36px;
+  padding: 0 1rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  border: 1px solid transparent;
   transition: 0.2s;
+  border: 1px solid transparent;
 }
+.btn-sm { height: 32px; padding: 0 0.75rem; font-size: 0.75rem; }
 
-.el-btn-primary { background: #409eff; color: #fff; border-color: #409eff; }
-.el-btn-primary:hover { background: #66b1ff; border-color: #66b1ff; }
+.btn-primary { background: #3b82f6; color: #fff; }
+.btn-primary:hover { background: #2563eb; }
 
-.el-btn-info { background: #334155; color: #fff; border-color: #475569; }
-.el-btn-info:hover { background: #475569; }
+.btn-secondary { background: rgba(51, 65, 85, 0.8); color: #e2e8f0; border-color: rgba(255, 255, 255, 0.1); }
+.btn-secondary:hover { background: #475569; }
 
-.el-btn-text { background: transparent; color: #94a3b8; }
-.el-btn-text:hover { color: #fff; }
+.btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
+.btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
 
-.btn-i { width: 14px; height: 14px; }
+.btn-ghost { background: transparent; color: #94a3b8; }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
 
-/* Element 风格表格 */
-.clue-data-card {
+.btn-link { background: transparent; color: #3b82f6; padding: 0; }
+.btn-link:hover { text-decoration: underline; }
+
+/* Table */
+.table-container {
   flex: 1;
-  background: var(--color-dark-glass);
-  border: 1px solid var(--color-dark-border);
-  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.table-scroll-area { flex: 1; overflow: auto; }
+.table-wrapper { flex: 1; overflow: auto; }
 
-.el-table-mock {
+.data-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
-}
-
-.el-table-mock th {
-  padding: 12px 16px;
-  background: rgba(15, 23, 42, 0.8);
-  color: #909399;
-  font-size: 13px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.el-table-mock td {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  font-size: 13px;
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.95);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.875rem;
   vertical-align: middle;
 }
 
-.el-table-mock tr:hover { background: rgba(255, 255, 255, 0.02); }
+.data-table tr:hover { background: rgba(59, 130, 246, 0.04); }
+.data-table tr.selected { background: rgba(59, 130, 246, 0.08); }
 
-/* 单元格风格 */
-.bold-text { color: #fff; font-weight: 600; }
-.muted-text { color: #64748b; }
-.time-text { color: #94a3b8; font-size: 12px; }
-.mono-text { font-family: monospace; color: #cbd5e1; }
-.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.checkbox-col { width: 48px; text-align: center; }
+.checkbox-col input { width: 16px; height: 16px; cursor: pointer; }
 
-/* 操作按钮组 (颜色优化，常驻显示) */
-.el-button-group {
-  display: flex;
-  /* justify-content: center; */
-  gap: 12px;
+.mono-text { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #94a3b8; font-size: 0.75rem; }
+.clue-title { font-weight: 600; color: #fff; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.source-tag {
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
+.source-tag.manual { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
+.source-tag.rule { background: rgba(139, 92, 246, 0.1); color: #a78bfa; }
+.source-tag.note { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+.source-tag.comment { background: rgba(16, 185, 129, 0.1); color: #34d399; }
 
-.icon-btn-el {
+.summary-cell { max-width: 280px; }
+.summary-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #94a3b8;
+}
+.source-id { color: #3b82f6; font-size: 0.75rem; margin-right: 0.25rem; font-weight: 600; }
+
+.risk-indicator { display: flex; align-items: center; gap: 0.5rem; }
+.risk-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.status-badge.pending { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.status-badge.processing { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
+.status-badge.handled { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+.status-badge.ignored { color: #64748b; background: rgba(100, 116, 139, 0.1); }
+
+.user-info { display: flex; flex-direction: column; }
+.user-nick { color: #f1f5f9; font-weight: 500; }
+.user-id { color: #64748b; font-size: 0.75rem; }
+
+.count-badges { display: flex; gap: 0.375rem; }
+.count-tag {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.count-tag.secondary { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.time-text { color: #64748b; font-size: 0.75rem; }
+
+/* Operations */
+.op-group { display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+.op-btn {
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 4px;
-  display: flex;
-  transition: transform 0.2s;
+  color: #64748b;
+  transition: all 0.2s;
 }
+.op-btn svg { width: 1.125rem; height: 1.125rem; }
+.op-btn:hover { transform: scale(1.15); }
+.op-btn.view:hover { color: #3b82f6; }
+.op-btn.edit:hover { color: #10b981; }
+.op-btn.delete:hover { color: #ef4444; }
 
-.icon-btn-el svg { width: 18px; height: 18px; }
-
-.icon-btn-el.view { color: #409eff; }
-.icon-btn-el.edit { color: #67c23a; }
-.icon-btn-el.delete { color: #f56c6c; }
-
-.icon-btn-el:hover { transform: scale(1.2); }
-
-/* 标签样式 */
-.el-tag {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  border: 1px solid;
-}
-.el-tag.low { background: rgba(103, 194, 58, 0.1); color: #67c23a; border-color: rgba(103, 194, 58, 0.2); }
-.el-tag.medium { background: rgba(230, 162, 60, 0.1); color: #e6a23c; border-color: rgba(230, 162, 60, 0.2); }
-.el-tag.high { background: rgba(245, 108, 108, 0.1); color: #f56c6c; border-color: rgba(245, 108, 108, 0.2); }
-.el-tag.severe { background: rgba(144, 147, 153, 0.1); color: #909399; border-color: rgba(144, 147, 153, 0.2); }
-
-.el-tag-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.el-tag-status.pending { color: #409eff; }
-.el-tag-status.processing { color: #9061f9; }
-.el-tag-status.handled { color: #67c23a; }
-.el-tag-status.ignored { color: #909399; }
-.status-i { width: 14px; height: 14px; }
-
-/* 分页栏 */
-.el-pagination-mock {
-  padding: 12px 20px;
+/* Pagination */
+.pagination {
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
-
-.pagination-info { font-size: 13px; color: #606266; }
-.pagination-info b { color: #fff; }
-
-.pagination-btns { display: flex; align-items: center; gap: 8px; }
+.pagination-info { font-size: 0.875rem; color: #64748b; }
+.total-count { color: #fff; font-weight: 600; }
+.pagination-controls { display: flex; align-items: center; gap: 1rem; }
 .page-btn {
-  background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #fff;
-  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-  border-radius: 4px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
 }
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.page-num { font-size: 13px; color: #fff; min-width: 60px; text-align: center; }
+.page-indicator { font-size: 0.875rem; color: #fff; min-width: 80px; text-align: center; }
 
+/* Transitions */
+.expand-enter-active, .expand-leave-active { transition: all 0.3s ease-out; max-height: 200px; overflow: hidden; }
+.expand-enter-from, .expand-leave-to { max-height: 0; opacity: 0; padding-top: 0; }
 
-
-/* 通用 */
-/* .text-center { text-align: center; } */
-.custom-scrollbar::-webkit-scrollbar { width: 5px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-
-.el-skeleton-item { height: 20px; background: rgba(255,255,255,0.05); border-radius: 4px; animation: pulse 2s infinite; }
+/* Skeleton */
+.skeleton-bar { height: 1.5rem; background: rgba(255, 255, 255, 0.03); border-radius: 4px; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.empty-row { text-align: center; padding: 3rem !important; color: #64748b; font-style: italic; }
+
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 </style>

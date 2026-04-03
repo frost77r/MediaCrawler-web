@@ -25,15 +25,28 @@ const showAddToClue = ref(false);
 const addToClueItemType = ref<'note' | 'comment'>('note');
 const addToClueItemId = ref('');
 const addToClueNoteId = ref('');
+const addToClueInitialData = ref<any>({});
 
 const openAddToClue = (type: 'note' | 'comment', item: any) => {
   addToClueItemType.value = type;
   if (type === 'note') {
     addToClueItemId.value = String(item.note_id || item.id || item.aweme_id || item.aid);
     addToClueNoteId.value = '';
+    addToClueInitialData.value = {
+      nickname: item.nickname || item.user?.nickname || item.author,
+      user_id: item.user_id,
+      source_keyword: item.source_keyword,
+      content: item.title || item.desc || item.note_title
+    };
   } else {
     addToClueItemId.value = String(item.comment_id || item.id || '');
     addToClueNoteId.value = activeNoteId.value || '';
+    addToClueInitialData.value = {
+      nickname: item.nickname || item.user_nickname || item.commenter,
+      user_id: item.user_id,
+      source_keyword: '',
+      content: item.content || item.text || item.comment_content
+    };
   }
   showAddToClue.value = true;
 };
@@ -240,6 +253,7 @@ const openNoteDetail = (note: Note) => {
       :item-type="addToClueItemType"
       :item-id="addToClueItemId"
       :note-id="addToClueNoteId"
+      :initial-data="addToClueInitialData"
     />
   </div>
 </template>
