@@ -78,17 +78,32 @@ onUnmounted(() => {
   stopTimer();
 });
 
-const handleStart = () => {
-  elapsedSeconds.value = 0;
-  isRunning.value = true;
-  crawlerStatus.value = 'running';
-  isFinished.value = false;
-  startTimer();
+const handleStart = async (config: any) => {
+  try {
+    const res = await crawlerApi.start(config) as any;
+    if (res.status === 'ok') {
+      elapsedSeconds.value = 0;
+      isRunning.value = true;
+      crawlerStatus.value = 'running';
+      isFinished.value = false;
+      startTimer();
+    }
+  } catch (err) {
+    console.error('Start crawler error:', err);
+    crawlerStatus.value = 'error';
+  }
 };
 
-const handleStop = () => {
-  isStopping.value = true;
-  crawlerStatus.value = 'stopping';
+const handleStop = async () => {
+  try {
+    const res = await crawlerApi.stop() as any;
+    if (res.status === 'ok') {
+      isStopping.value = true;
+      crawlerStatus.value = 'stopping';
+    }
+  } catch (err) {
+    console.error('Stop crawler error:', err);
+  }
 };
 </script>
 

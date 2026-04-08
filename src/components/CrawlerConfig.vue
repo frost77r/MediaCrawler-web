@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Play, Square, Settings2, Sliders, Globe, Database, Settings } from 'lucide-vue-next';
-import { crawlerApi } from '../api';
 import type { CrawlerStartRequest } from '../types';
 import CustomSelect from './CustomSelect.vue';
 
@@ -74,22 +73,12 @@ const form = ref<CrawlerStartRequest>({
   wordcloud: false
 });
 
-const startCrawler = async () => {
-  try {
-    const res = await crawlerApi.start(form.value) as any;
-    if (res.status === 'ok') {
-      emit('start');
-    }
-  } catch (err: any) {}
+const startCrawler = () => {
+  emit('start', form.value);
 };
 
-const stopCrawler = async () => {
-  try {
-    const res = await crawlerApi.stop() as any;
-    if (res.status === 'ok') {
-      emit('stop');
-    }
-  } catch (err: any) {}
+const stopCrawler = () => {
+  emit('stop');
 };
 </script>
 
