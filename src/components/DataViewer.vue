@@ -65,11 +65,11 @@ const loadNotes = async () => {
   loadingNotes.value = true;
   try {
     const res = await dataApi.getNotes(platform.value);
-    const { data, error } = res.data;
-    if (error) {
-      alert(`读取数据库失败: ${error}`);
+    const payload = res as any;
+    if (payload.error) {
+      alert(`读取数据库失败: ${payload.error}`);
     } else {
-      notes.value = data || [];
+      notes.value = payload.data || [];
       comments.value = [];
       activeNoteId.value = null;
     }
@@ -88,7 +88,8 @@ const selectNote = async (note: Note) => {
   
   try {
     const res = await dataApi.getComments(platform.value, String(id));
-    comments.value = res.data.data || [];
+    const payload = res as any;
+    comments.value = payload.data || [];
   } catch (err: any) {
     console.error('Fetch comments error:', err);
   } finally {
