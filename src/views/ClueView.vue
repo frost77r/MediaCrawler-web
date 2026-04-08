@@ -388,7 +388,7 @@ onMounted(() => {
               <th style="width: 120px">处理状态</th>
               <th style="width: 120px">目标用户</th>
               <th style="width: 80px">关联数</th>
-              <th style="width: 160px">发现时间</th>
+              <th style="width: 180px">发现时间</th>
               <th style="width: 120px">操作</th>
             </tr>
           </thead>
