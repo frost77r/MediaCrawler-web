@@ -1,5 +1,4 @@
 import request from './request';
-import type { Clue, ClueDetail } from '../types';
 
 export const clueApi = {
   list: (params: any) => 

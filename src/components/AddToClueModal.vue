@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
-import { X, Search, Plus, Info, AlertTriangle, User, FileText } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
+import { X, Search, Plus, Info } from 'lucide-vue-next';
 import { clueApi } from '../api/clue';
 import type { Clue } from '../types';
 import CustomSelect from './CustomSelect.vue';

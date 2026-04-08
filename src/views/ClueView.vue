@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { 
-  Search, Filter, AlertTriangle, CheckCircle2, 
-  Clock, ExternalLink, Trash2, Plus,
+  Search, Filter, CheckCircle2, 
+  Clock, Trash2, Plus,
   ChevronLeft, ChevronRight, Eye, ShieldAlert,
-  Construction, X, PencilLine, MoreHorizontal,
+  Construction, PencilLine,
   Download, Users, ArrowRightLeft, Ban, ChevronDown, ChevronUp
 } from 'lucide-vue-next';
 import { clueApi } from '../api/clue';

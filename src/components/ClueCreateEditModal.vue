@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { X, Info, FileText, Link, User, Shield, CheckCircle2, Clock, Construction, Trash2, Plus, Search, ExternalLink } from 'lucide-vue-next';
+import { X, Info, FileText, Link, Trash2, Plus, ExternalLink } from 'lucide-vue-next';
 import CustomSelect from './CustomSelect.vue';
-import type { Clue, Note, Comment } from '../types';
+import type { Clue } from '../types';
 
 const props = defineProps<{
   showCreateModal: boolean;
@@ -20,8 +20,6 @@ const emit = defineEmits<{
 const internalClueForm = ref<Clue>({ ...props.clueForm });
 
 // Mock source data for display (in real app, this would be fetched or passed)
-const sourceNote = ref<Note | null>(null);
-const sourceComment = ref<Comment | null>(null);
 
 watch(() => props.clueForm, (newVal) => {
   internalClueForm.value = { ...newVal };

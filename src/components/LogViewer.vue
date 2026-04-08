@@ -31,8 +31,8 @@ const scrollToBottom = () => {
 
 const fetchLogs = async () => {
   try {
-    const data = await crawlerApi.getLogs(50);
-    const newLogs = data.logs.filter((l: Log) => l.id > lastLogId);
+    const res = await crawlerApi.getLogs(50);
+    const newLogs = res.data.logs.filter((l: Log) => l.id > lastLogId);
     if (newLogs.length > 0) {
       logs.value.push(...newLogs);
       lastLogId = newLogs[newLogs.length - 1].id;

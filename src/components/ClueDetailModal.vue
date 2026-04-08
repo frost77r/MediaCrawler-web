@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { 
   X, ExternalLink, Clock, Construction, CheckCircle2, 
-  Trash2, Shield, Info, Link, User, FileText, 
-  History, PencilLine, Ban, MoreHorizontal
+  Trash2, Info, Link, User, FileText, 
+  History, PencilLine
 } from 'lucide-vue-next';
 import type { ClueDetail } from '../types';
 

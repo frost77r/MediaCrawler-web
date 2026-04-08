@@ -3,12 +3,12 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 
 interface Option {
-  value: string | number | boolean;
+  value: string | number | boolean | undefined;
   label: string;
 }
 
 const props = defineProps<{
-  modelValue: string | number | boolean;
+  modelValue: string | number | boolean | undefined;
   options: Option[];
   placeholder?: string;
   label?: string;
