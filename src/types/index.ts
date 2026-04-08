@@ -55,7 +55,9 @@ export interface Note {
   note_url?: string;
   source_keyword?: string;
   xsec_token?: string;
-  
+  audit_status?: number;
+  audit_reason?: string;
+
   // compatibility fields
   aweme_id?: string;
   aid?: string;
@@ -86,7 +88,7 @@ export interface Comment {
   pictures?: string;
   parent_comment_id?: string;
   like_count?: number;
-  
+
   // compatibility fields
   aweme_id?: string;
   video_id?: string;
@@ -120,14 +122,14 @@ export interface Clue {
   update_time?: number;
   discover_time?: number;
   platform?: string;
-  
+
   // added for UI display
   related_note_count?: number;
   related_comment_count?: number;
   source_note_id?: string;
   source_comment_id?: string;
   source_content_summary?: string;
-  
+
   // for form submission
   note_ids?: string[];
   comment_ids?: string[];
