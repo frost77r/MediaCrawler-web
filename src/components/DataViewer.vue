@@ -79,7 +79,12 @@ const loadNotes = async () => {
 };
 
 const selectNote = async (note: Note) => {
-  const id = note.note_id || note.id || note.aweme_id || note.aid || '';
+  let id: string | number = '';
+  if (platform.value === 'bili') {
+    id = note.video_id || note.aid || note.id || '';
+  } else {
+    id = note.note_id || note.id || note.aweme_id || note.aid || '';
+  }
   const title = note.title || note.desc || note.note_title || '(无标题)';
   
   activeNoteId.value = String(id);

@@ -61,6 +61,7 @@ export interface Note {
   // compatibility fields
   aweme_id?: string;
   aid?: string;
+  video_id?: string;
   note_title?: string;
   note_desc?: string;
   content?: string;
