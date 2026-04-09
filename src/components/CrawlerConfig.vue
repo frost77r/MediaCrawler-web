@@ -52,7 +52,7 @@ const saveOptionOptions = [
 const form = ref<CrawlerStartRequest>({
   platform: 'xhs',
   crawler_type: 'search',
-  keywords: '男人的玩具',
+  keywords: '大狗',
   sort_type: 'general',
   specified_ids: '',
   creator_ids: '',
