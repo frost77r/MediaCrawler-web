@@ -200,7 +200,7 @@ const openNoteDetail = (note: Note) => {
             <div class="note-meta">
               <span class="meta-item"><User class="w-3 h-3" /> {{ note.nickname || note.user?.nickname || note.author || '未知' }}</span>
               <span class="meta-item likes"><Heart class="w-3 h-3" /> {{ note.liked_count || note.like_count || note.digg_count || 0 }}</span>
-              <span class="meta-item comments"><MessageSquare class="w-3 h-3" /> {{ note.comment_count || note.comments_count || 0 }}</span>
+              <span class="meta-item comments"><MessageSquare class="w-3 h-3" /> {{ note.comment_count || note.comments_count || note.video_comment || 0 }}</span>
               <span v-if="note.time || note.create_time" class="meta-item"><Calendar class="w-3 h-3" /> {{ formatTime(note.time || note.create_time) }}</span>
               <span v-if="note.audit_status !== undefined" class="meta-item" :title="note.audit_reason">审核状态: {{ note.audit_status }}</span>
               <button class="add-to-lead-btn" @click.stop="openAddToClue('note', note)" title="添加至线索">
