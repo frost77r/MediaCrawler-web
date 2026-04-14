@@ -243,9 +243,6 @@ const getSourceLabel = (type: string | undefined) => {
           </div>
           <div class="footer-right">
             <button @click="handleCloseModal" class="btn btn-ghost">关闭</button>
-            <button class="btn btn-secondary">标记处理中</button>
-            <button class="btn btn-success">处置完成</button>
-            <button class="btn btn-warning">忽略线索</button>
           </div>
         </footer>
       </div>
