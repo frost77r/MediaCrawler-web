@@ -93,6 +93,9 @@ const toggleSidebar = () => {
         </div>
 
         <div class="header-right">
+          <div class="time-display">
+            {{ new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }) }}
+          </div>
           <div class="user-badge">
             <div class="user-avatar">
               A
@@ -333,6 +336,19 @@ const toggleSidebar = () => {
 }
 
 .header-right { display: flex; align-items: center; gap: 1.5rem; }
+
+.time-display {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.375rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  display: none;
+}
+@media (min-width: 768px) {
+  .time-display { display: block; }
+}
 
 .user-badge {
   display: flex; align-items: center; gap: 0.75rem;

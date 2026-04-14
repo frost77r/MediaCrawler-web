@@ -116,45 +116,36 @@ const mockHistory = [
 
 <template>
   <div class="dispatch-container">
-    <header class="dispatch-header">
-      <div class="header-info">
-        <div class="title-wrapper">
-          <Activity class="title-icon" />
-          <h3 class="header-title">调度中心</h3>
-        </div>
-        <p class="header-desc">控制并监控媒体爬虫实例的运行生命周期</p>
-      </div>
-
-      <div 
-        :class="[
-          'status-badge',
-          crawlerStatus === 'running' ? 'status-running' :
-          crawlerStatus === 'stopping' ? 'status-stopping' :
-          crawlerStatus === 'error' ? 'status-error' : 'status-idle'
-        ]"
-      >
-        <div v-if="crawlerStatus === 'running'" class="running-indicator">
-          <span class="ping-dot"></span>
-          <span class="solid-dot"></span>
-        </div>
-        <Loader2 v-else-if="crawlerStatus === 'stopping'" class="w-5 h-5 animate-spin" />
-        <ServerCrash v-else-if="crawlerStatus === 'error'" class="w-5 h-5" />
-        <Server v-else class="w-5 h-5 opacity-60" />
-        
-        <span class="status-text font-bold">
-          {{ 
-            crawlerStatus === 'running' ? '系统采集中' : 
-            crawlerStatus === 'stopping' ? '正在中止任务' : 
-            crawlerStatus === 'error' ? '实例出错离线' : 
-            '待命空闲' 
-          }}
-        </span>
-      </div>
-    </header>
-
     <div class="dispatch-layout">
       <!-- Sub-layout Sidebar -->
       <aside class="dispatch-sidebar">
+        <!-- Status Badge Moved to Sidebar Top -->
+        <div 
+          :class="[
+            'status-badge',
+            crawlerStatus === 'running' ? 'status-running' :
+            crawlerStatus === 'stopping' ? 'status-stopping' :
+            crawlerStatus === 'error' ? 'status-error' : 'status-idle'
+          ]"
+        >
+          <div v-if="crawlerStatus === 'running'" class="running-indicator">
+            <span class="ping-dot"></span>
+            <span class="solid-dot"></span>
+          </div>
+          <Loader2 v-else-if="crawlerStatus === 'stopping'" class="w-4 h-4 animate-spin" />
+          <ServerCrash v-else-if="crawlerStatus === 'error'" class="w-4 h-4" />
+          <Server v-else class="w-4 h-4 opacity-60" />
+          
+          <span class="status-text font-bold">
+            {{ 
+              crawlerStatus === 'running' ? '系统采集中' : 
+              crawlerStatus === 'stopping' ? '正在中止任务' : 
+              crawlerStatus === 'error' ? '实例出错离线' : 
+              '系统待命空闲' 
+            }}
+          </span>
+        </div>
+
         <button 
           @click="activeTab = 'config'" 
           :class="['sidebar-btn', { active: activeTab === 'config' }]"
@@ -324,61 +315,18 @@ const mockHistory = [
   overflow: hidden;
 }
 
-.dispatch-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  background: var(--glass-bg);
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.header-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.title-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: var(--color-accent);
-}
-
-.header-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.025em;
-}
-
-.header-desc {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-left: 1px solid var(--glass-border);
-  padding-left: 1rem;
-}
-
 .status-badge {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.375rem 1rem;
-  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
   border-width: 1px;
   border-style: solid;
   font-size: 0.8125rem;
   transition: all 0.3s;
+  margin-bottom: 1rem;
 }
 
 .status-running {

@@ -34,20 +34,6 @@ const quickLinks = [
 
 <template>
   <div class="dashboard-container">
-    <!-- Header -->
-    <header class="dashboard-header">
-      <div class="header-info">
-        <div class="title-wrapper">
-          <LayoutDashboard class="title-icon" />
-          <h2 class="header-title">系统概览</h2>
-        </div>
-        <p class="header-desc">慧眸数据采集与舆情分析指挥中心</p>
-      </div>
-      <div class="time-display">
-        {{ new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }) }}
-      </div>
-    </header>
-
     <!-- Metrics Row -->
     <div class="metrics-grid">
       <div v-for="(metric, idx) in metrics" :key="idx" class="metric-card">
@@ -153,64 +139,10 @@ const quickLinks = [
   padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   color: var(--text-main);
   height: 100%;
   overflow-y: auto;
-}
-
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  background: var(--glass-bg);
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.header-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.title-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: var(--color-accent);
-}
-
-.header-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.025em;
-}
-
-.header-desc {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-left: 1px solid var(--glass-border);
-  padding-left: 1rem;
-}
-
-.time-display {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.375rem 1rem;
-  border-radius: 999px;
-  border: 1px solid var(--glass-border);
 }
 
 .metrics-grid {

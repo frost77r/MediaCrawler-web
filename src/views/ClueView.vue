@@ -293,42 +293,37 @@ onMounted(() => {
 
 <template>
   <div class="clue-management">
-    <!-- 头部：标题与副标题 -->
-    <header class="page-header">
-      <div class="header-info">
-        <div class="title-wrapper">
-          <ShieldAlert class="title-icon" />
-          <h2 class="header-title">线索管理</h2>
-        </div>
-        <p class="header-desc">智能化风险预警与线索跟踪系统</p>
-      </div>
-    </header>
-
     <!-- 筛选区 -->
     <div class="filter-container">
-      <div class="filter-main">
-        <div class="filter-item search-box">
-          <div class="input-wrapper">
-            <Search class="icon-search" />
-            <input v-model="filters.keyword" @keyup.enter="fetchClues" placeholder="搜索标题/编号/用户/内容..." class="custom-input">
+      <div class="filter-top">
+        <div class="filter-main">
+          <div class="filter-item search-box">
+            <div class="input-wrapper">
+              <Search class="icon-search" />
+              <input v-model="filters.keyword" @keyup.enter="fetchClues" placeholder="搜索标题/编号/用户/内容..." class="custom-input">
+            </div>
+          </div>
+          <div class="filter-item">
+            <CustomSelect v-model="filters.source_type" :options="sourceOptions" @change="fetchClues" />
+          </div>
+          <div class="filter-item">
+            <CustomSelect v-model="filters.status" :options="statusOptions" @change="fetchClues" />
+          </div>
+          <div class="filter-item">
+            <CustomSelect v-model="filters.risk_level" :options="riskLevelOptions" @change="fetchClues" />
+          </div>
+          <div class="filter-actions">
+            <button @click="fetchClues" class="btn btn-secondary"><Filter class="w-4 h-4" /> 筛选</button>
+            <button @click="resetFilters" class="btn btn-ghost">重置</button>
+            <button @click="showAdvancedFilter = !showAdvancedFilter" class="btn btn-link">
+              {{ showAdvancedFilter ? '收起高级' : '高级筛选' }}
+              <component :is="showAdvancedFilter ? ChevronUp : ChevronDown" class="w-4 h-4" />
+            </button>
           </div>
         </div>
-        <div class="filter-item">
-          <CustomSelect v-model="filters.source_type" :options="sourceOptions" @change="fetchClues" />
-        </div>
-        <div class="filter-item">
-          <CustomSelect v-model="filters.status" :options="statusOptions" @change="fetchClues" />
-        </div>
-        <div class="filter-item">
-          <CustomSelect v-model="filters.risk_level" :options="riskLevelOptions" @change="fetchClues" />
-        </div>
-        <div class="filter-actions">
-          <button @click="fetchClues" class="btn btn-primary"><Filter class="w-4 h-4" /> 筛选</button>
-          <button @click="resetFilters" class="btn btn-ghost">重置</button>
-          <button @click="showAdvancedFilter = !showAdvancedFilter" class="btn btn-link">
-            {{ showAdvancedFilter ? '收起高级' : '高级筛选' }}
-            <component :is="showAdvancedFilter ? ChevronUp : ChevronDown" class="w-4 h-4" />
-          </button>
+        <div class="global-actions">
+          <button class="btn btn-ghost"><Download class="w-4 h-4" /> 导出</button>
+          <button @click="handleOpenCreate" class="btn btn-primary"><Plus class="w-4 h-4" /> 新增线索</button>
         </div>
       </div>
 
@@ -358,7 +353,7 @@ onMounted(() => {
     </div>
 
     <!-- 操作区 -->
-    <div class="action-bar">
+    <div class="action-bar" v-show="selectedIds.length > 0">
       <div class="bulk-actions">
         <template v-if="selectedIds.length > 0">
           <span class="selection-info">已选 {{ selectedIds.length }} 项</span>
@@ -367,10 +362,6 @@ onMounted(() => {
           <button class="btn btn-secondary btn-sm"><Ban class="w-3.5 h-3.5" /> 批量忽略</button>
           <button @click="handleBulkDelete" class="btn btn-danger btn-sm"><Trash2 class="w-3.5 h-3.5" /> 批量删除</button>
         </template>
-      </div>
-      <div class="right-actions">
-        <button class="btn btn-ghost btn-sm"><Download class="w-4 h-4" /> 导出</button>
-        <button @click="handleOpenCreate" class="btn btn-primary"><Plus class="w-4 h-4" /> 新增线索</button>
       </div>
     </div>
 
@@ -569,11 +560,33 @@ onMounted(() => {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+.filter-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .filter-main {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+  flex: 1;
+}
+
+.global-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.action-divider {
+  width: 1px;
+  height: 1.5rem;
+  background-color: var(--glass-border);
+  margin: 0 0.25rem;
 }
 
 .search-box { width: 300px; }
