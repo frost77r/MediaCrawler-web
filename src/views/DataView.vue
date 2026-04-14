@@ -6,9 +6,12 @@ import DataViewer from '../components/DataViewer.vue';
 <template>
   <div class="dataview-container">
     <!-- Header -->
-    <div class="dataview-header">
+    <header class="dataview-header">
       <div class="header-info">
-        <h3 class="header-title">数据展示</h3>
+        <div class="title-wrapper">
+          <Database class="title-icon" />
+          <h3 class="header-title">数据展示</h3>
+        </div>
         <p class="header-desc">浏览已采集的多平台帖子、视频及评论数据</p>
       </div>
 
@@ -16,24 +19,22 @@ import DataViewer from '../components/DataViewer.vue';
         <Database class="w-4 h-4" />
         <span>数据库连接正常</span>
       </div>
-    </div>
+    </header>
 
     <!-- Data Viewer Content -->
     <main class="dataview-content">
-      <div class="viewer-wrapper">
-        <DataViewer />
-      </div>
+      <DataViewer />
     </main>
   </div>
 </template>
 
 <style scoped>
 .dataview-container {
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   overflow: hidden;
 }
 
@@ -42,55 +43,67 @@ import DataViewer from '../components/DataViewer.vue';
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  background: var(--glass-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .header-info {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-accent);
 }
 
 .header-title {
-  font-size: 1.875rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.025em;
-  margin-bottom: 0.5rem;
 }
 
 .header-desc {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 500;
+  font-size: 0.875rem;
+  border-left: 1px solid var(--glass-border);
+  padding-left: 1rem;
 }
 
 .db-status {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   background-color: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
-  padding: 0.625rem 1.5rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  padding: 0.375rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .dataview-content {
   flex: 1 1 0%;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-dark-glass);
-  border: 1px solid var(--color-dark-border);
-  border-radius: 2.5rem;
-  padding: 2rem;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
   overflow: hidden;
-}
-
-.viewer-wrapper {
-  flex: 1 1 0%;
-  min-height: 0;
 }
 </style>

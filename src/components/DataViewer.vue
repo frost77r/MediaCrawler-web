@@ -180,7 +180,7 @@ const openNoteDetail = (note: Note) => {
           {{ loadingNotes ? '⏳ 正在加载中...' : '请选择平台并点击"从数据库加载"' }}
         </div>
         <template v-else>
-          <div class="count-label">共 {{ filteredNotes.length }} 条帖子</div>
+          <div class="count-label">共 {{ filteredNotes.length }} 条记录</div>
           <div 
             v-for="note in filteredNotes" 
             :key="note.note_id || note.id"
@@ -202,7 +202,7 @@ const openNoteDetail = (note: Note) => {
               <span class="meta-item likes"><Heart class="w-3 h-3" /> {{ note.liked_count || note.like_count || note.digg_count || 0 }}</span>
               <span class="meta-item comments"><MessageSquare class="w-3 h-3" /> {{ note.comment_count || note.comments_count || note.video_comment || 0 }}</span>
               <span v-if="note.time || note.create_time" class="meta-item"><Calendar class="w-3 h-3" /> {{ formatTime(note.time || note.create_time) }}</span>
-              <span v-if="note.audit_status !== undefined" class="meta-item" :title="note.audit_reason">审核状态: {{ note.audit_status }}</span>
+              <span v-if="note.audit_status !== undefined" class="meta-item" :title="note.audit_reason">状态: {{ note.audit_status }}</span>
               <button class="add-to-lead-btn" @click.stop="openAddToClue('note', note)" title="添加至线索">
                 <Plus class="w-3 h-3" /> 线索
               </button>
@@ -217,19 +217,20 @@ const openNoteDetail = (note: Note) => {
       <!-- Comment Panel -->
       <div class="comment-panel">
         <div v-if="!activeNoteId" class="empty-hint">
-          👈 点击左侧帖子查看评论
+          👈 点击左侧记录查看详情和评论
         </div>
         <div v-else class="comment-wrapper">
           <div class="comment-header" :title="activeNoteTitle">
-            💬 "{{ activeNoteTitle }}" 的评论
+            <MessageSquare class="w-4 h-4 text-blue-400" />
+            <span class="header-text">{{ activeNoteTitle }}</span>
           </div>
           
           <div class="comment-list">
             <div v-if="loadingComments" class="loading-status">
-              ⏳ 正在加载评论...
+              <div class="spinner"></div> 加载中...
             </div>
             <div v-else-if="comments.length === 0" class="empty-hint">
-              该帖子暂无评论数据
+              无评论数据
             </div>
             <div 
               v-for="(comment, idx) in comments" 
@@ -237,16 +238,17 @@ const openNoteDetail = (note: Note) => {
               class="comment-item"
             >
               <div class="comment-author">
-                <User class="w-3 h-3" /> {{ comment.nickname || comment.user_nickname || comment.commenter || '匿名用户' }}
+                <User class="w-3 h-3 text-slate-400" /> 
+                <span class="author-name">{{ comment.nickname || comment.user_nickname || comment.commenter || '匿名用户' }}</span>
               </div>
               <div class="comment-content">
                 {{ (comment.content || comment.text || comment.comment_content || '').replace(/<[^>]*>/g, '') }}
               </div>
               <div class="comment-footer">
-                <span class="footer-item likes"><Heart class="w-2.5 h-2.5" /> {{ comment.like_count || comment.digg_count || comment.liked_count || 0 }}</span>
-                <span v-if="comment.create_time || comment.time" class="footer-item"><Calendar class="w-2.5 h-2.5" /> {{ formatDateTime(comment.create_time || comment.time) }}</span>
+                <span class="footer-item likes"><Heart class="w-3 h-3" /> {{ comment.like_count || comment.digg_count || comment.liked_count || 0 }}</span>
+                <span v-if="comment.create_time || comment.time" class="footer-item time"><Calendar class="w-3 h-3" /> {{ formatDateTime(comment.create_time || comment.time) }}</span>
                 <button class="add-to-lead-btn mini" @click.stop="openAddToClue('comment', comment)" title="添加至线索">
-                  <Plus class="w-2.5 h-2.5" /> 线索
+                  <Plus class="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -279,12 +281,12 @@ const openNoteDetail = (note: Note) => {
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
 }
 
 .platform-select-wrapper {
-  width: 8rem;
+  width: 9rem;
 }
 
 .btn-load {
@@ -323,13 +325,13 @@ const openNoteDetail = (note: Note) => {
   transform: translateY(-50%);
   width: 1rem;
   height: 1rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .search-input {
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--glass-border);
   border-radius: 0.5rem;
   padding: 0.5rem 1rem 0.5rem 2.5rem;
   font-size: 0.875rem;
@@ -352,14 +354,14 @@ const openNoteDetail = (note: Note) => {
 }
 
 .note-list {
-  width: 50%;
+  width: 55%;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  padding: 0.75rem;
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
   overflow-y: auto;
 }
 
@@ -368,46 +370,45 @@ const openNoteDetail = (note: Note) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.875rem;
-  font-style: italic;
 }
 
 .count-label {
   font-size: 0.75rem;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
   padding: 0 0.25rem;
 }
 
 .note-card {
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.02);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.1s;
 }
 
 .note-card:hover {
-  border-color: rgba(109, 40, 217, 0.5);
-  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .note-card.active {
-  background-color: rgba(109, 40, 217, 0.2);
+  background-color: rgba(59, 130, 246, 0.1);
   border-color: var(--accent);
-  box-shadow: 0 10px 15px -3px rgba(109, 40, 217, 0.1);
+  border-left: 3px solid var(--accent);
 }
 
 .note-title {
   font-weight: 600;
   font-size: 0.875rem;
-  color: #f1f5f9;
+  color: #f8fafc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -420,9 +421,10 @@ const openNoteDetail = (note: Note) => {
 .note-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.75rem;
-  font-size: 11px;
-  color: #94a3b8;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .meta-item {
@@ -431,32 +433,27 @@ const openNoteDetail = (note: Note) => {
   gap: 0.25rem;
 }
 
-.meta-item.likes {
-  color: #fb7185;
-}
-
-.meta-item.comments {
-  color: #38bdf8;
-}
+.meta-item.likes { color: #f43f5e; }
+.meta-item.comments { color: #3b82f6; }
 
 .note-desc {
-  margin-top: 0.5rem;
+  margin-top: 0.375rem;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #cbd5e1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.625;
+  line-height: 1.5;
 }
 
 .comment-panel {
-  width: 50%;
+  width: 45%;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
   padding: 0.75rem;
   overflow: hidden;
 }
@@ -470,10 +467,16 @@ const openNoteDetail = (note: Note) => {
 .comment-header {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 0.75rem;
+  color: #fff;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -484,8 +487,8 @@ const openNoteDetail = (note: Note) => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding-right: 0.5rem;
+  gap: 0.5rem;
+  padding-right: 0.25rem;
 }
 
 .loading-status {
@@ -493,42 +496,55 @@ const openNoteDetail = (note: Note) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  gap: 0.5rem;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 .comment-item {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-left: 4px solid var(--accent);
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-  padding: 0.75rem;
+  background-color: rgba(15, 23, 42, 0.6);
+  border-left: 2px solid var(--glass-border);
+  border-radius: 0 0.375rem 0.375rem 0;
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.25rem;
 }
 
 .comment-author {
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent-hover);
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
 
+.author-name {
+  font-weight: 600;
+  color: #93c5fd;
+}
+
 .comment-content {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #e2e8f0;
-  line-height: 1.625;
+  line-height: 1.5;
 }
 
 .comment-footer {
   display: flex;
-  gap: 1rem;
-  font-size: 10px;
-  color: #64748b;
-  padding-top: 0.25rem;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.125rem;
 }
 
 .footer-item {
@@ -537,34 +553,51 @@ const openNoteDetail = (note: Note) => {
   gap: 0.25rem;
 }
 
-.footer-item.likes {
-  color: rgba(244, 63, 94, 0.8);
-}
+.footer-item.likes { color: rgba(244, 63, 94, 0.8); }
+.footer-item.time { font-family: monospace; }
 
 .add-to-lead-btn {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: transparent;
   border: 1px solid rgba(59, 130, 246, 0.3);
   color: #60a5fa;
   padding: 0.125rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 10px;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .add-to-lead-btn:hover {
-  background-color: #3b82f6;
-  color: #ffffff;
+  background-color: rgba(59, 130, 246, 0.15);
   border-color: #3b82f6;
+  color: #fff;
 }
 
 .add-to-lead-btn.mini {
-  padding: 0.1rem 0.375rem;
-  font-size: 9px;
+  padding: 0.125rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Scrollbars */
+.note-list::-webkit-scrollbar,
+.comment-list::-webkit-scrollbar {
+  width: 4px;
+}
+.note-list::-webkit-scrollbar-track,
+.comment-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.note-list::-webkit-scrollbar-thumb,
+.comment-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 </style>

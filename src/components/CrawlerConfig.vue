@@ -291,16 +291,16 @@ const stopCrawler = () => {
   background-color: rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 1.25rem;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
 }
 
 .section-title {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -309,7 +309,7 @@ const stopCrawler = () => {
 .section-icon {
   width: 1rem;
   height: 1rem;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .section-grid {
@@ -331,13 +331,13 @@ const stopCrawler = () => {
 .form-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .form-input {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   padding: 0.5rem 0.625rem;
   font-size: 0.875rem;
   color: #ffffff;
@@ -347,9 +347,9 @@ const stopCrawler = () => {
 }
 
 .form-input:focus {
-  border-color: #8b5cf6;
-  background-color: rgba(139, 92, 246, 0.05);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+  border-color: var(--accent);
+  background-color: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .toggle-grid {
@@ -387,8 +387,8 @@ const stopCrawler = () => {
 }
 
 .toggle-input:checked {
-  background-color: #8b5cf6;
-  border-color: #8b5cf6;
+  background-color: var(--accent);
+  border-color: var(--accent);
 }
 
 .toggle-input:checked::after {
@@ -404,7 +404,7 @@ const stopCrawler = () => {
 }
 
 .toggle-text {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: #e2e8f0;
 }
 
@@ -437,13 +437,14 @@ const stopCrawler = () => {
 }
 
 .btn-primary {
-  background-image: linear-gradient(to right, #8b5cf6, #6d28d9);
+  background: var(--accent);
   color: #ffffff;
-  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+  background: var(--accent-hover);
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -451,8 +452,7 @@ const stopCrawler = () => {
 }
 
 .btn-primary:disabled {
-  background-image: none;
-  background-color: #334155;
+  background: #334155;
   color: #94a3b8;
   box-shadow: none;
   cursor: not-allowed;
@@ -464,13 +464,13 @@ const stopCrawler = () => {
 
 .btn-danger {
   background-color: transparent;
-  color: #f43f5e;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: rgba(244, 63, 94, 0.1);
-  border-color: #f43f5e;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
 }
 
 .btn-danger:active:not(:disabled) {

@@ -87,7 +87,7 @@ const currentLabel = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
@@ -97,13 +97,13 @@ const currentLabel = () => {
 }
 
 .select-trigger:hover {
-  border-color: rgba(139, 92, 246, 0.5);
+  border-color: rgba(59, 130, 246, 0.5);
   background-color: rgba(255, 255, 255, 0.05);
 }
 
 .select-trigger.is-open {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .selected-label {
@@ -117,7 +117,7 @@ const currentLabel = () => {
 .chevron-icon {
   width: 1rem;
   height: 1rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   transition: transform 0.2s ease;
   flex-shrink: 0;
   margin-left: 0.5rem;
@@ -132,7 +132,7 @@ const currentLabel = () => {
   top: calc(100% + 0.5rem);
   left: 0;
   width: 100%;
-  background-color: #1e1e2d;
+  background-color: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   padding: 0.5rem;
@@ -164,12 +164,12 @@ const currentLabel = () => {
 }
 
 .dropdown-item:hover {
-  background-color: rgba(139, 92, 246, 0.1);
+  background-color: rgba(59, 130, 246, 0.1);
   color: #ffffff;
 }
 
 .dropdown-item.is-active {
-  background-color: #8b5cf6;
+  background-color: var(--accent);
   color: #ffffff;
 }
 

@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store/auth';
-import { Lock, User, LogIn } from 'lucide-vue-next';
+import { Lock, User, LogIn, Activity } from 'lucide-vue-next';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -30,26 +30,26 @@ const handleLogin = async () => {
     <div class="login-card">
       <div class="login-header">
         <div class="logo-wrapper">
-          <Lock class="logo-icon" />
+          <Activity class="logo-icon" />
         </div>
-        <h1 class="brand-title">慧眸</h1>
-        <p class="brand-subtitle">数据采集与分析一体化平台</p>
+        <h1 class="brand-title">慧眸系统</h1>
+        <p class="brand-subtitle">舆情数据采集与预警分析指挥中心</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="input-group">
-          <label class="input-label">用户名</label>
+          <label class="input-label">系统账号</label>
           <div class="input-wrapper">
             <User class="input-icon" />
-            <input v-model="username" type="text" placeholder="请输入用户名" class="base-input" />
+            <input v-model="username" type="text" placeholder="请输入管理员账号" class="base-input" />
           </div>
         </div>
 
         <div class="input-group">
-          <label class="input-label">密码</label>
+          <label class="input-label">安全密码</label>
           <div class="input-wrapper">
             <Lock class="input-icon" />
-            <input v-model="password" type="password" placeholder="请输入密码" class="base-input" />
+            <input v-model="password" type="password" placeholder="请输入您的密码" class="base-input" />
           </div>
         </div>
 
@@ -57,7 +57,7 @@ const handleLogin = async () => {
           <span v-if="loading" class="loading-spinner"></span>
           <template v-else>
             <LogIn class="btn-icon" />
-            立即登录
+            进入指挥中心
           </template>
         </button>
       </form>
@@ -71,7 +71,7 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-dark);
+  background-color: var(--bg-dark);
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
@@ -79,36 +79,34 @@ const handleLogin = async () => {
 
 .bg-decoration-top {
   position: absolute;
-  top: -10rem;
+  top: -20rem;
   right: -10rem;
-  width: 24rem;
-  height: 24rem;
-  background-color: rgba(109, 40, 217, 0.2);
-  border-radius: 9999px;
-  filter: blur(100px);
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  width: 40rem;
+  height: 40rem;
+  background-image: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .bg-decoration-bottom {
   position: absolute;
-  bottom: -10rem;
+  bottom: -20rem;
   left: -10rem;
-  width: 24rem;
-  height: 24rem;
-  background-color: rgba(16, 185, 129, 0.1);
-  border-radius: 9999px;
-  filter: blur(100px);
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  width: 40rem;
+  height: 40rem;
+  background-image: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .login-card {
   width: 100%;
-  max-width: 28rem;
-  background-color: var(--color-dark-glass);
-  border: 1px solid var(--color-dark-border);
-  backdrop-filter: blur(40px);
-  border-radius: 2rem;
-  padding: 2.5rem;
+  max-width: 26rem;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
+  padding: 3rem 2.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
@@ -122,34 +120,32 @@ const handleLogin = async () => {
 }
 
 .logo-wrapper {
-  width: 4rem;
-  height: 4rem;
-  background-color: rgba(109, 40, 217, 0.2);
-  border-radius: 1rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
-  box-shadow: inset 0 0 0 1px rgba(109, 40, 217, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .logo-icon {
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-accent-hover);
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--accent);
 }
 
 .brand-title {
-  font-size: 1.875rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  background-image: linear-gradient(to right, #a78bfa, #34d399);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #fff;
+  letter-spacing: 0.05em;
 }
 
 .brand-subtitle {
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-top: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -170,7 +166,7 @@ const handleLogin = async () => {
 .input-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-left: 0.25rem;
@@ -192,44 +188,47 @@ const handleLogin = async () => {
 }
 
 .input-wrapper:focus-within .input-icon {
-  color: var(--color-accent-hover);
+  color: var(--accent);
 }
 
 .base-input {
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   padding: 0.875rem 1rem 0.875rem 3rem;
   color: #ffffff;
   outline: none;
   transition: all 0.2s;
+  font-size: 0.875rem;
 }
 
 .base-input:focus {
-  border-color: rgba(109, 40, 217, 0.5);
-  box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .btn-login {
   width: 100%;
-  background-color: var(--color-accent);
+  background-color: var(--accent);
   color: #ffffff;
-  font-weight: 700;
-  padding: 1rem;
-  border-radius: 1rem;
+  font-weight: 600;
+  padding: 0.875rem;
+  border-radius: 0.75rem;
   border: none;
-  box-shadow: 0 10px 15px -3px rgba(109, 40, 217, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .btn-login:hover {
-  background-color: var(--color-accent-hover);
+  background-color: var(--accent-hover);
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
 }
 
 .btn-login:active {
@@ -237,7 +236,9 @@ const handleLogin = async () => {
 }
 
 .btn-login:disabled {
-  opacity: 0.5;
+  background-color: #334155;
+  color: #94a3b8;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
@@ -260,34 +261,8 @@ const handleLogin = async () => {
   transform: translateX(0.25rem);
 }
 
-.login-footer {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  text-align: center;
-}
-
-.github-link {
-  color: #64748b;
-  transition: color 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  text-decoration: none;
-}
-
-.github-link:hover {
-  color: #ffffff;
-}
-
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
 }
 </style>

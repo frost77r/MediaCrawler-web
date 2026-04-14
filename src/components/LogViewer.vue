@@ -87,7 +87,8 @@ const getLogClass = (level: string) => {
   <div class="log-viewer">
     <div ref="logsContainer" class="log-scroll-area" @scroll="handleScroll">
       <div v-if="logs.length === 0" class="log-empty">
-        >> 初始化完成，请配置参数后点击"开始爬取"...
+        >> 系统初始化完成. 核心模块已就绪.<br>
+        >> 等待用户配置参数并启动任务...
       </div>
       <div v-for="log in logs" :key="log.id" class="log-entry">
         <span class="log-timestamp">[{{ log.timestamp }}]</span>
@@ -100,16 +101,17 @@ const getLogClass = (level: string) => {
 <style scoped>
 .log-viewer {
   flex: 1 1 0%;
-  background-color: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #020617; /* Very dark slate, almost black */
+  border: 1px solid var(--glass-border);
   border-radius: 0.5rem;
   padding: 1rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .log-scroll-area {
@@ -122,12 +124,13 @@ const getLogClass = (level: string) => {
 }
 
 .log-empty {
-  color: #64748b;
+  color: #475569;
+  line-height: 1.5;
 }
 
 .log-entry {
   word-break: break-all;
-  line-height: 1.625;
+  line-height: 1.5;
 }
 
 .log-timestamp {
@@ -135,19 +138,22 @@ const getLogClass = (level: string) => {
   margin-right: 0.5rem;
 }
 
-.log-info {
-  color: #38bdf8;
-}
+.log-info { color: #38bdf8; }
+.log-error { color: #f43f5e; }
+.log-warning { color: #eab308; }
+.log-success { color: #10b981; }
 
-.log-error {
-  color: #fb7185;
+.log-scroll-area::-webkit-scrollbar {
+  width: 6px;
 }
-
-.log-warning {
-  color: #fbbf24;
+.log-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-.log-success {
-  color: #34d399;
+.log-scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+}
+.log-scroll-area::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 </style>

@@ -8,13 +8,13 @@ export default {
     extend: {
       colors: {
         dark: {
-          DEFAULT: '#0f111a',
-          glass: 'rgba(25, 28, 41, 0.7)',
-          border: 'rgba(255, 255, 255, 0.1)',
+          DEFAULT: '#0f172a',
+          glass: 'rgba(15, 23, 42, 0.8)',
+          border: 'rgba(51, 65, 85, 0.5)',
         },
         accent: {
-          DEFAULT: '#6d28d9',
-          hover: '#7c3aed',
+          DEFAULT: '#3b82f6',
+          hover: '#2563eb',
         }
       }
     },
