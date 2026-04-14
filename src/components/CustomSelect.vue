@@ -89,11 +89,11 @@ const currentLabel = () => {
   justify-content: space-between;
   background-color: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 2.375rem;
+  min-height: 2rem;
 }
 
 .select-trigger:hover {
@@ -107,7 +107,7 @@ const currentLabel = () => {
 }
 
 .selected-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
@@ -115,8 +115,8 @@ const currentLabel = () => {
 }
 
 .chevron-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 0.875rem;
+  height: 0.875rem;
   color: var(--text-muted);
   transition: transform 0.2s ease;
   flex-shrink: 0;
@@ -129,17 +129,17 @@ const currentLabel = () => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 0.25rem);
   left: 0;
   width: 100%;
   background-color: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  padding: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
   z-index: 100;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 
               0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  max-height: 15rem;
+  max-height: 12rem;
   overflow-y: auto;
 }
 
@@ -155,10 +155,10 @@ const currentLabel = () => {
 }
 
 .dropdown-item {
-  padding: 0.625rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
   color: #cbd5e1;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }

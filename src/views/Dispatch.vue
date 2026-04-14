@@ -117,9 +117,33 @@ const mockHistory = [
 <template>
   <div class="dispatch-container">
     <div class="dispatch-layout">
-      <!-- Sub-layout Sidebar -->
-      <aside class="dispatch-sidebar">
-        <!-- Status Badge Moved to Sidebar Top -->
+      <!-- Top Tabs -->
+      <nav class="dispatch-tabs">
+        <div class="tabs-group">
+          <button 
+            @click="activeTab = 'config'" 
+            :class="['tab-btn', { active: activeTab === 'config' }]"
+          >
+            <Settings class="w-4 h-4" />
+            <span>任务配置</span>
+          </button>
+          <button 
+            @click="activeTab = 'monitor'" 
+            :class="['tab-btn', { active: activeTab === 'monitor' }]"
+          >
+            <MonitorPlay class="w-4 h-4" />
+            <span>运行监控</span>
+          </button>
+          <button 
+            @click="activeTab = 'history'" 
+            :class="['tab-btn', { active: activeTab === 'history' }]"
+          >
+            <History class="w-4 h-4" />
+            <span>调度历史</span>
+          </button>
+        </div>
+
+        <!-- Status Badge moved to the right of the tabs -->
         <div 
           :class="[
             'status-badge',
@@ -145,29 +169,7 @@ const mockHistory = [
             }}
           </span>
         </div>
-
-        <button 
-          @click="activeTab = 'config'" 
-          :class="['sidebar-btn', { active: activeTab === 'config' }]"
-        >
-          <Settings class="w-4 h-4" />
-          <span>任务配置</span>
-        </button>
-        <button 
-          @click="activeTab = 'monitor'" 
-          :class="['sidebar-btn', { active: activeTab === 'monitor' }]"
-        >
-          <MonitorPlay class="w-4 h-4" />
-          <span>运行监控</span>
-        </button>
-        <button 
-          @click="activeTab = 'history'" 
-          :class="['sidebar-btn', { active: activeTab === 'history' }]"
-        >
-          <History class="w-4 h-4" />
-          <span>调度历史</span>
-        </button>
-      </aside>
+      </nav>
 
       <!-- Main Content Area -->
       <main class="dispatch-main glass-card">
@@ -315,20 +317,6 @@ const mockHistory = [
   overflow: hidden;
 }
 
-.status-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  border-width: 1px;
-  border-style: solid;
-  font-size: 0.8125rem;
-  transition: all 0.3s;
-  margin-bottom: 1rem;
-}
-
 .status-running {
   background-color: rgba(59, 130, 246, 0.1);
   border-color: rgba(59, 130, 246, 0.2);
@@ -382,44 +370,67 @@ const mockHistory = [
 .dispatch-layout {
   flex: 1 1 0%;
   display: flex;
-  gap: 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
   min-height: 0;
 }
 
-.dispatch-sidebar {
-  width: 14rem;
+.dispatch-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.sidebar-btn {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  flex-shrink: 0;
   background: var(--glass-bg);
+  padding: 0.5rem 1rem;
   border: 1px solid var(--glass-border);
   border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tabs-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
   color: var(--text-muted);
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
-  text-align: left;
 }
 
-.sidebar-btn:hover {
+.tab-btn:hover {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
 }
 
-.sidebar-btn.active {
+.tab-btn.active {
   background: rgba(59, 130, 246, 0.1);
-  border-color: var(--accent);
-  color: #fff;
-  border-left: 4px solid var(--accent);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 0.8125rem;
+  transition: all 0.3s;
+  margin-bottom: 0;
 }
 
 .dispatch-main {

@@ -106,26 +106,26 @@ const stopCrawler = () => {
             <label class="form-label">抓取模式</label>
             <CustomSelect v-model="form.crawler_type" :options="crawlerTypeOptions" />
           </div>
-        </div>
 
-        <div v-if="form.crawler_type === 'search'" class="form-group mb-2">
-          <label class="form-label">搜索关键词</label>
-          <input v-model="form.keywords" type="text" placeholder="例如: 手机,汽车" class="form-input" />
-        </div>
-        
-        <div v-if="form.crawler_type === 'search'" class="form-group mb-2">
-          <label class="form-label">排序方式</label>
-          <CustomSelect v-model="form.sort_type" :options="sortTypeOptions" />
-        </div>
+          <div v-if="form.crawler_type === 'search'" class="form-group span-2">
+            <label class="form-label">搜索关键词</label>
+            <input v-model="form.keywords" type="text" placeholder="例如: 手机,汽车" class="form-input" />
+          </div>
+          
+          <div v-if="form.crawler_type === 'search'" class="form-group span-2">
+            <label class="form-label">排序方式</label>
+            <CustomSelect v-model="form.sort_type" :options="sortTypeOptions" />
+          </div>
 
-        <div v-if="form.crawler_type === 'detail'" class="form-group mb-2">
-          <label class="form-label">指定记录ID (逗号分隔)</label>
-          <input v-model="form.specified_ids" type="text" placeholder="帖子链接或ID" class="form-input" />
-        </div>
+          <div v-if="form.crawler_type === 'detail'" class="form-group span-2">
+            <label class="form-label">指定记录ID (逗号分隔)</label>
+            <input v-model="form.specified_ids" type="text" placeholder="帖子链接或ID" class="form-input" />
+          </div>
 
-        <div v-if="form.crawler_type === 'creator'" class="form-group mb-2">
-          <label class="form-label">创作者ID (逗号分隔)</label>
-          <input v-model="form.creator_ids" type="text" placeholder="创作者主页链接或ID" class="form-input" />
+          <div v-if="form.crawler_type === 'creator'" class="form-group span-2">
+            <label class="form-label">创作者ID (逗号分隔)</label>
+            <input v-model="form.creator_ids" type="text" placeholder="创作者主页链接或ID" class="form-input" />
+          </div>
         </div>
       </section>
 
@@ -171,40 +171,49 @@ const stopCrawler = () => {
         </div>
       </section>
 
-      <!-- 功能开关 -->
-      <section class="config-section">
+      <!-- 功能开关 (跨列) -->
+      <section class="config-section span-full">
         <div class="section-title">
           <Settings class="section-icon" /> 功能开关
         </div>
-        <div class="toggle-grid">
-          <label class="toggle-control">
-            <input type="checkbox" v-model="form.cdp" class="toggle-input">
-            <span class="toggle-text">开启 CDP 模式</span>
-          </label>
-          <label class="toggle-control" v-if="form.cdp">
-            <input type="checkbox" v-model="form.cdp_headless" class="toggle-input">
-            <span class="toggle-text">CDP 无头模式</span>
-          </label>
-          <label class="toggle-control" v-else>
-            <input type="checkbox" v-model="form.headless" class="toggle-input">
-            <span class="toggle-text">基础无头模式</span>
-          </label>
-          <label class="toggle-control">
-            <input type="checkbox" v-model="form.enable_media" class="toggle-input">
-            <span class="toggle-text">抓取媒体文件</span>
-          </label>
-          <label class="toggle-control">
-            <input type="checkbox" v-model="form.enable_comments" class="toggle-input">
-            <span class="toggle-text">抓取评论</span>
-          </label>
-          <label class="toggle-control" v-if="form.enable_comments">
-            <input type="checkbox" v-model="form.enable_sub_comments" class="toggle-input">
-            <span class="toggle-text">抓取子评论</span>
-          </label>
-          <label class="toggle-control">
-            <input type="checkbox" v-model="form.wordcloud" class="toggle-input">
-            <span class="toggle-text">生成词云</span>
-          </label>
+        <div class="toggle-group-container">
+          <div class="toggle-group">
+            <div class="toggle-group-title">浏览器设置</div>
+            <label class="toggle-control">
+              <input type="checkbox" v-model="form.cdp" class="toggle-input">
+              <span class="toggle-text">开启 CDP 模式</span>
+            </label>
+            <label class="toggle-control" v-if="form.cdp">
+              <input type="checkbox" v-model="form.cdp_headless" class="toggle-input">
+              <span class="toggle-text">CDP 无头模式</span>
+            </label>
+            <label class="toggle-control" v-else>
+              <input type="checkbox" v-model="form.headless" class="toggle-input">
+              <span class="toggle-text">基础无头模式</span>
+            </label>
+          </div>
+          <div class="toggle-group">
+            <div class="toggle-group-title">媒体与评论</div>
+            <label class="toggle-control">
+              <input type="checkbox" v-model="form.enable_media" class="toggle-input">
+              <span class="toggle-text">抓取媒体文件</span>
+            </label>
+            <label class="toggle-control">
+              <input type="checkbox" v-model="form.enable_comments" class="toggle-input">
+              <span class="toggle-text">抓取评论</span>
+            </label>
+            <label class="toggle-control" v-if="form.enable_comments">
+              <input type="checkbox" v-model="form.enable_sub_comments" class="toggle-input">
+              <span class="toggle-text">抓取子评论</span>
+            </label>
+          </div>
+          <div class="toggle-group">
+            <div class="toggle-group-title">附加分析</div>
+            <label class="toggle-control">
+              <input type="checkbox" v-model="form.wordcloud" class="toggle-input">
+              <span class="toggle-text">生成词云</span>
+            </label>
+          </div>
         </div>
       </section>
       
@@ -238,13 +247,14 @@ const stopCrawler = () => {
   flex-direction: column;
   height: 100%;
   color: #fff;
+  width: 100%;
 }
 
 .config-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding-bottom: 1.25rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 1rem;
 }
@@ -262,12 +272,19 @@ const stopCrawler = () => {
 }
 
 .form-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.25rem;
   overflow-y: auto;
-  padding-right: 0.75rem;
+  padding-right: 0.5rem;
+  align-content: start;
   flex: 1 1 0%;
+}
+
+@media (min-width: 1024px) {
+  .form-wrapper {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .form-wrapper::-webkit-scrollbar {
@@ -292,12 +309,13 @@ const stopCrawler = () => {
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 1.25rem;
   border-radius: 0.75rem;
+  height: fit-content;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -307,29 +325,40 @@ const stopCrawler = () => {
 }
 
 .section-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 0.875rem;
+  height: 0.875rem;
   color: #64748b;
 }
 
 .section-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: 0.5rem 0.75rem;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.span-full {
+  grid-column: span 1;
+}
+@media (min-width: 1024px) {
+  .span-full { grid-column: span 3; }
 }
 
 .mb-2 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.25rem;
 }
 
 .form-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -337,9 +366,9 @@ const stopCrawler = () => {
 .form-input {
   background-color: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.625rem;
-  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
   color: #ffffff;
   outline: none;
   transition: all 0.2s ease;
@@ -352,32 +381,54 @@ const stopCrawler = () => {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
-.toggle-grid {
+.toggle-group-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.625rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.toggle-group-title {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.25rem;
 }
 
 .toggle-control {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.03);
-  padding: 0.5rem 0.625rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.05);
+  background-color: rgba(255, 255, 255, 0.02);
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255,255,255,0.03);
   transition: all 0.2s;
 }
 
 .toggle-control:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .toggle-input {
   appearance: none;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1rem;
+  height: 1rem;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 0.25rem;
   background-color: rgba(0,0,0,0.3);
@@ -397,7 +448,7 @@ const stopCrawler = () => {
   left: 30%;
   top: 15%;
   width: 0.25rem;
-  height: 0.5rem;
+  height: 0.4rem;
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
@@ -410,9 +461,9 @@ const stopCrawler = () => {
 
 .action-footer {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
 }
@@ -422,11 +473,11 @@ const stopCrawler = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
   transition: all 0.2s;
   cursor: pointer;
   border: none;
