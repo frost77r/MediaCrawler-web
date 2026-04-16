@@ -71,6 +71,15 @@ export interface Note {
   digg_count?: number;
   comments_count?: number;
   create_time?: number | string;
+  // Bilibili specific
+  video_comment?: string | number;
+  video_play_count?: string | number;
+  video_favorite_count?: string | number;
+  video_share_count?: string | number;
+  video_coin_count?: string | number;
+  video_danmaku?: string | number;
+  // Weibo specific
+  shared_count?: string | number;
 }
 
 export interface Comment {
