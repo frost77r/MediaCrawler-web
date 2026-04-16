@@ -7,6 +7,7 @@ import Dispatch from '../views/Dispatch.vue';
 import DataView from '../views/DataView.vue';
 import ClueView from '../views/ClueView.vue';
 import AnalysisView from '../views/AnalysisView.vue';
+import MapView from '../views/MapView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -49,6 +50,12 @@ const router = createRouter({
           path: 'analysis',
           name: 'analysis',
           component: AnalysisView,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'map',
+          name: 'map',
+          component: MapView,
           meta: { requiresAuth: true }
         }
       ]
