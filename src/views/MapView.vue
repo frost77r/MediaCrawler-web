@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
+import { ref, onMounted, onUnmounted, shallowRef, nextTick } from 'vue';
 import * as echarts from 'echarts';
 import axios from 'axios';
-import { MapPin, Users, Globe2, Activity } from 'lucide-vue-next';
+import { MapPin, Users, Globe2, Activity, Bell } from 'lucide-vue-next';
 
 const mapContainerRef = ref<HTMLElement | null>(null);
+const pieChartRef = ref<HTMLElement | null>(null);
+
 const mapChart = shallowRef<echarts.ECharts | null>(null);
+const pieChart = shallowRef<echarts.ECharts | null>(null);
+
 const isLoading = ref(true);
 
 const stats = [
@@ -15,17 +19,28 @@ const stats = [
   { title: '实时监控', value: '正常', icon: MapPin, color: '#ef4444' },
 ];
 
+const recentActivities = [
+  { id: 1, location: '广东', platform: '小红书', time: '刚刚', type: '新增抓取', amount: '+124 条' },
+  { id: 2, location: '北京', platform: '抖音', time: '2分钟前', type: '评论采集', amount: '+892 条' },
+  { id: 3, location: '浙江', platform: 'B站', time: '5分钟前', type: 'UP主分析', amount: '+45 个' },
+  { id: 4, location: '上海', platform: '微博', time: '12分钟前', type: '热搜监控', amount: '+20 条' },
+  { id: 5, location: '四川', platform: '快手', time: '15分钟前', type: '视频抓取', amount: '+56 条' },
+  { id: 6, location: '山东', platform: '知乎', time: '20分钟前', type: '问答采集', amount: '+34 条' },
+  { id: 7, location: '江苏', platform: '贴吧', time: '25分钟前', type: '帖子抓取', amount: '+108 条' },
+  { id: 8, location: '湖北', platform: '抖音', time: '30分钟前', type: '评论采集', amount: '+512 条' },
+  { id: 9, location: '湖南', platform: '小红书', time: '35分钟前', type: '新增抓取', amount: '+88 条' },
+  { id: 10, location: '福建', platform: '微博', time: '40分钟前', type: '热搜监控', amount: '+15 条' },
+];
+
 const initMap = async () => {
   if (!mapContainerRef.value) return;
 
   try {
-    // 尝试获取中国地图 GeoJSON (Aliyun DataV)
     const { data: geoJson } = await axios.get('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
     echarts.registerMap('china', geoJson);
 
     mapChart.value = echarts.init(mapContainerRef.value);
 
-    // 模拟基于帖子的各省市 IP 活跃数据
     const data = [
       { name: '广东', value: 8500 },
       { name: '浙江', value: 6100 },
@@ -58,15 +73,14 @@ const initMap = async () => {
       { name: '宁夏', value: 200 },
       { name: '青海', value: 150 },
       { name: '西藏', value: 50 },
-      { name: '新疆', value: 200 },
       { name: '台湾', value: 80 }
     ];
 
     const option = {
       title: {
-        text: '全网抓取内容 IP 归属地热力分布',
+        text: '全国数据抓取热力图',
         left: 'center',
-        textStyle: { color: '#e5e7eb', fontSize: 20, fontWeight: 600 },
+        textStyle: { color: '#e5e7eb', fontSize: 16, fontWeight: 600 },
         top: '2%'
       },
       tooltip: {
@@ -83,20 +97,20 @@ const initMap = async () => {
       visualMap: {
         min: 0,
         max: 9000,
-        left: '5%',
-        bottom: '5%',
+        left: '3%',
+        bottom: '3%',
         text: ['高', '低'],
         calculable: true,
         inRange: {
           color: ['#1e3a8a', '#3b82f6', '#8b5cf6', '#d946ef', '#ec4899', '#ef4444']
         },
         textStyle: { color: '#9ca3af' },
-        itemHeight: 120
+        itemHeight: 100,
+        itemWidth: 15
       },
       geo: {
         map: 'china',
-        roam: true,
-        scaleLimit: { min: 1, max: 4 },
+        roam: false,
         zoom: 1.2,
         label: {
           normal: { show: false, color: 'rgba(255, 255, 255, 0.5)' },
@@ -136,7 +150,7 @@ const initMap = async () => {
             { name: '四川', value: [104.0665, 30.5723, 3100] }
           ],
           symbolSize: function (val: number[]) {
-            return Math.max(val[2] / 300, 10);
+            return Math.max(val[2] / 400, 8);
           },
           showEffectOn: 'render',
           rippleEffect: { brushType: 'stroke', scale: 3 },
@@ -154,28 +168,63 @@ const initMap = async () => {
   }
 };
 
-const resizeMap = () => {
+const initRightCharts = () => {
+  if (pieChartRef.value) {
+    pieChart.value = echarts.init(pieChartRef.value);
+    pieChart.value.setOption({
+      title: { 
+        text: '各平台地域分布均衡度', 
+        textStyle: { color: '#e5e7eb', fontSize: 14 },
+        left: 'center',
+        top: '2%'
+      },
+      tooltip: { trigger: 'item' },
+      legend: { bottom: '0', textStyle: { color: '#e5e7eb', fontSize: 10 }, itemWidth: 8, itemHeight: 8 },
+      series: [
+        {
+          name: '平台分布',
+          type: 'pie',
+          radius: ['40%', '65%'],
+          center: ['50%', '55%'],
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 5, borderColor: '#1f2937', borderWidth: 2 },
+          label: { show: false, position: 'center' },
+          emphasis: { label: { show: true, fontSize: '14', fontWeight: 'bold', color: '#fff' } },
+          labelLine: { show: false },
+          data: [
+            { value: 40, name: '小红书', itemStyle: { color: '#ef4444' } },
+            { value: 30, name: '抖音', itemStyle: { color: '#10b981' } },
+            { value: 20, name: '微博', itemStyle: { color: '#f59e0b' } },
+            { value: 10, name: 'B站', itemStyle: { color: '#3b82f6' } },
+          ]
+        }
+      ]
+    });
+  }
+};
+
+const resizeAll = () => {
   mapChart.value?.resize();
+  pieChart.value?.resize();
 };
 
 onMounted(() => {
   initMap();
-  window.addEventListener('resize', resizeMap);
+  nextTick(() => {
+    initRightCharts();
+  });
+  window.addEventListener('resize', resizeAll);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', resizeMap);
+  window.removeEventListener('resize', resizeAll);
   mapChart.value?.dispose();
+  pieChart.value?.dispose();
 });
 </script>
 
 <template>
   <div class="map-container">
-    <div class="header">
-      <h1 class="title">IP 地图追踪</h1>
-      <p class="subtitle">直观展示海量抓取帖子、视频与评论的 IP 归属地热力分布，监控高热度区域。</p>
-    </div>
-
     <!-- Stats Cards -->
     <div class="stats-grid">
       <div v-for="stat in stats" :key="stat.title" class="stat-card glass-panel">
@@ -189,13 +238,47 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Map Chart -->
-    <div class="map-card glass-panel">
-      <div v-if="isLoading" class="loading-overlay">
-        <div class="spinner"></div>
-        <span class="loading-text">加载地图数据中...</span>
+    <!-- Main Content: Left Map, Right Info -->
+    <div class="content-layout">
+      <!-- Left: Map Chart -->
+      <div class="map-card glass-panel">
+        <div v-if="isLoading" class="loading-overlay">
+          <div class="spinner"></div>
+          <span class="loading-text">加载地图数据中...</span>
+        </div>
+        <div ref="mapContainerRef" class="map-wrapper" :class="{ 'opacity-0': isLoading }"></div>
       </div>
-      <div ref="mapContainerRef" class="map-wrapper" :class="{ 'opacity-0': isLoading }"></div>
+
+      <!-- Right: Info Panel -->
+      <div class="right-panel">
+        <!-- Middle Chart -->
+        <div class="chart-card glass-panel">
+          <div ref="pieChartRef" class="chart-container"></div>
+        </div>
+
+        <!-- Bottom List: Activity Feed -->
+        <div class="activity-card glass-panel">
+          <div class="activity-header">
+            <Bell class="activity-icon" />
+            <h3 class="activity-title">实时区域动态</h3>
+          </div>
+          <div class="activity-list">
+            <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
+              <div class="activity-info">
+                <div class="activity-primary">
+                  <span class="activity-location">{{ activity.location }}</span>
+                  <span class="activity-divider">·</span>
+                  <span class="activity-platform">{{ activity.platform }}</span>
+                  <span class="activity-divider">·</span>
+                  <span class="activity-type">{{ activity.type }}</span>
+                </div>
+                <div class="activity-time">{{ activity.time }}</div>
+              </div>
+              <div class="activity-amount">{{ activity.amount }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -208,23 +291,6 @@ onUnmounted(() => {
   gap: 1.5rem;
   color: var(--text-main);
   height: 100%;
-}
-
-.header {
-  margin-bottom: 0.5rem;
-  flex-shrink: 0;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.25rem;
-}
-
-.subtitle {
-  color: var(--text-muted);
-  font-size: 0.875rem;
 }
 
 .glass-panel {
@@ -288,8 +354,21 @@ onUnmounted(() => {
   letter-spacing: -0.025em;
 }
 
-.map-card {
+.content-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   flex: 1;
+  min-height: 0;
+}
+@media (min-width: 1024px) {
+  .content-layout {
+    flex-direction: row;
+  }
+}
+
+.map-card {
+  flex: 5;
   min-height: 500px;
   position: relative;
   overflow: hidden;
@@ -337,5 +416,138 @@ onUnmounted(() => {
 
 .opacity-0 {
   opacity: 0;
+}
+
+.right-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 320px;
+  max-width: 100%;
+}
+@media (min-width: 1024px) {
+  .right-panel {
+    max-width: 400px;
+  }
+}
+
+.chart-card {
+  padding: 1rem;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.activity-card {
+  flex: 1;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.activity-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.activity-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #3b82f6;
+}
+
+.activity-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  flex: 1;
+}
+
+.activity-list::-webkit-scrollbar {
+  width: 4px;
+}
+.activity-list::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+.activity-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.activity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.activity-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.activity-location {
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.activity-divider {
+  color: #4b5563;
+}
+
+.activity-platform {
+  color: #9ca3af;
+}
+
+.activity-type {
+  color: #3b82f6;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 0.25rem;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.activity-amount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #10b981;
 }
 </style>
