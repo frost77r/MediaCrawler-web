@@ -91,7 +91,7 @@ const initCharts = () => {
     chart3.value.setOption({
       title: { text: '平台互动数据对比 (平均)', textStyle: { color: '#e5e7eb', fontSize: 16 }, left: '2%' },
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      legend: { data: ['点赞', '评论', '收藏/转发'], textStyle: { color: '#e5e7eb' }, right: '2%' },
+      legend: { data: ['点赞', '评论', '收藏/转发'], textStyle: { color: '#e5e7eb' }, top: 'top', right: '0%' },
       grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
       xAxis: { 
         type: 'category', 
@@ -365,7 +365,7 @@ onUnmounted(() => {
 
 .chart-card {
   padding: 1.25rem;
-  height: 380px;
+  height: 358px;
   display: flex;
   flex-direction: column;
 }
