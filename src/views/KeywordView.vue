@@ -133,7 +133,7 @@ const initCharts = () => {
     platformChart.value.setOption({
       title: { text: '主要黑话平台分布差异', textStyle: { color: '#e5e7eb', fontSize: 16 }, left: '2%' },
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      legend: { data: ['贴吧', 'QQ群', '微博', '二手平台'], textStyle: { color: '#e5e7eb' }, right: '2%' },
+      legend: { data: ['贴吧', 'QQ群', '微博', '二手平台'], textStyle: { color: '#e5e7eb' }, top: '1%', right: '1%' },
       grid: { left: '3%', right: '4%', bottom: '3%', top: '20%', containLabel: true },
       xAxis: { 
         type: 'category', 
@@ -157,74 +157,174 @@ const initCharts = () => {
   // 4. 交易倾向与风险等级散点分析
   if (interactionChartRef.value) {
     interactionChart.value = echarts.init(interactionChartRef.value);
-    
-    const scatterData = topKeywords.slice(0, 15).map(item => {
-      // Generate some mock risk level (1 to 10) and transaction intent (0 to 100)
-      const riskLevel = (Math.random() * 9 + 1).toFixed(1);
-      const transactionIntent = Math.floor(Math.random() * 80 + 20);
-      return [riskLevel, transactionIntent, item.name, item.value];
-    });
+
+    // 固定数据，每个点可单独指定 label position 避免遮挡
+    interface RawPoint {
+      name: string; risk: number; intent: number; freq: number;
+      labelPos?: 'top' | 'bottom' | 'left' | 'right';
+    }
+    const rawData: RawPoint[] = [
+      { name: '狗',    risk: 9.2, intent: 55, freq: 10000, labelPos: 'bottom' },
+      { name: '气狗',  risk: 9.5, intent: 48, freq: 9500,  labelPos: 'right'  },
+      { name: '雷子',  risk: 8.8, intent: 88, freq: 8800,  labelPos: 'left'   },
+      { name: '管子',  risk: 9.0, intent: 84, freq: 8800,  labelPos: 'right'  },
+      { name: 'V我',   risk: 6.5, intent: 92, freq: 8200,  labelPos: 'top'    },
+      { name: '面交',  risk: 7.2, intent: 45, freq: 7500,  labelPos: 'bottom' },
+      { name: '大狗',  risk: 9.1, intent: 52, freq: 7200,  labelPos: 'left'   },
+      { name: '小狗',  risk: 9.0, intent: 78, freq: 6800,  labelPos: 'top'    },
+      { name: '手狗',  risk: 2.8, intent: 72, freq: 6500,  labelPos: 'top'    },
+      { name: '狗粮',  risk: 2.5, intent: 35, freq: 6000,  labelPos: 'top'    },
+      { name: '粮食',  risk: 6.0, intent: 78, freq: 5800,  labelPos: 'top'    },
+      { name: '衣架',  risk: 7.8, intent: 92, freq: 5500,  labelPos: 'right'  },
+      { name: '母鸡',  risk: 6.2, intent: 62, freq: 4800,  labelPos: 'bottom' },
+      { name: '兔子',  risk: 4.3, intent: 28, freq: 4500,  labelPos: 'top'    },
+      { name: '内脏',  risk: 7.5, intent: 94, freq: 4200,  labelPos: 'left'   },
+    ];
+
+    const toSeries = (group: RawPoint[], color1: string, color2: string, shadow: string) =>
+      group.map(d => ({
+        value: [d.risk, d.intent, d.freq],
+        name: d.name,
+        label: { position: d.labelPos ?? 'top' },
+        itemStyle: {
+          color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [
+            { offset: 0, color: color1 },
+            { offset: 1, color: color2 },
+          ]),
+          opacity: 0.88,
+          shadowBlur: 14,
+          shadowColor: shadow,
+        },
+      }));
+
+    const lowRisk  = rawData.filter(d => d.risk < 4);
+    const midRisk  = rawData.filter(d => d.risk >= 4 && d.risk < 7);
+    const highRisk = rawData.filter(d => d.risk >= 7);
+
+    // 公共 label formatter（取 name 字段）
+    const labelBase = {
+      show: true,
+      formatter: (p: any) => p.data.name,
+      fontSize: 11,
+      fontWeight: 700,
+    };
 
     interactionChart.value.setOption({
-      title: { text: '私下交易敏感信号关联分析', textStyle: { color: '#e5e7eb', fontSize: 16 }, left: '2%' },
+      backgroundColor: 'transparent',
+      title: {
+        text: '私下交易敏感信号关联分析',
+        subtext: '● 气泡大小 = 词频热度    ● X轴 = 风险等级 (0~10)    ● Y轴 = 私交倾向指数',
+        textStyle: { color: '#e5e7eb', fontSize: 15, fontWeight: 600 },
+        subtextStyle: { color: '#4b5563', fontSize: 10.5 },
+        left: '2%',
+        top: '1%',
+      },
       tooltip: {
         trigger: 'item',
-        formatter: function (params: any) {
-          return `${params.data[2]}<br/>风险等级(1-10): ${params.data[0]}<br/>私交倾向指数: ${params.data[1]}<br/>词频: ${params.data[3]}`;
+        backgroundColor: 'rgba(15,23,42,0.95)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderWidth: 1,
+        padding: [10, 14],
+        textStyle: { color: '#e5e7eb', fontSize: 13 },
+        formatter: (p: any) => {
+          const [risk, intent, freq] = p.data.value as number[];
+          const name = p.data.name as string;
+          const riskStr = risk >= 7 ? '<span style="color:#fca5a5">🔴 高危</span>'
+            : risk >= 4 ? '<span style="color:#fde68a">🟡 中危</span>'
+            : '<span style="color:#6ee7b7">🟢 低危</span>';
+          return `<b style="font-size:14px">${name}</b><br/>
+风险等级：<b>${risk}</b> ${riskStr}<br/>
+私交倾向：<b>${intent}</b><br/>
+词频热度：<b>${(freq as number).toLocaleString()}</b> 次`;
         }
       },
-      grid: { left: '3%', right: '8%', bottom: '3%', top: '20%', containLabel: true },
-      xAxis: { 
-        name: '风险预警等级 (低 <- -> 高)',
-        nameLocation: 'middle',
-        nameGap: 25,
-        type: 'value', 
-        min: 0, max: 10,
-        axisLabel: { color: '#9ca3af' }, 
-        splitLine: { lineStyle: { color: '#374151', type: 'dashed' } } 
+      legend: {
+        data: ['低风险词', '中风险词', '高风险词'],
+        top: '1%',
+        right: '2%',
+        icon: 'circle',
+        textStyle: { color: '#9ca3af', fontSize: 11 },
+        itemWidth: 10, itemHeight: 10, itemGap: 14,
       },
-      yAxis: { 
-        name: '私下交易倾向指数',
-        type: 'value',
-        axisLabel: { color: '#9ca3af' },
-        splitLine: { lineStyle: { color: '#374151', type: 'dashed' } }
+      // 给 visualMap 留出右侧空间
+      grid: { left: '6%', right: '12%', bottom: '8%', top: '20%' },
+      xAxis: {
+        type: 'value', min: 0, max: 11,
+        name: '风险预警等级 →',
+        nameLocation: 'end',
+        nameGap: 6,
+        nameTextStyle: { color: '#4b5563', fontSize: 10 },
+        axisLabel: { color: '#4b5563', fontSize: 10 },
+        splitLine: { lineStyle: { color: '#1e293b', width: 1 } },
+        axisLine: { lineStyle: { color: '#334155' } },
+        axisTick: { show: false },
       },
+      yAxis: {
+        type: 'value', min: 0, max: 110,
+        axisLabel: { color: '#4b5563', fontSize: 10 },
+        splitLine: { lineStyle: { color: '#1e293b', width: 1 } },
+        axisLine: { lineStyle: { color: '#334155' } },
+        axisTick: { show: false },
+      },
+      // visualMap 竖向放右侧，不遮挡底部轴
       visualMap: {
-        show: false,
-        min: 1000,
-        max: 10000,
-        inRange: {
-          symbolSize: [10, 40]
-        }
+        show: true,
+        min: 4000, max: 10000,
+        dimension: 2,
+        orient: 'vertical',
+        right: '1%',
+        top: 'middle',
+        itemHeight: 80,
+        itemWidth: 12,
+        text: ['高', '低'],
+        textStyle: { color: '#4b5563', fontSize: 10 },
+        inRange: { symbolSize: [12, 52] },
+        calculable: true,
+        handleStyle: { color: '#6366f1' },
+        indicatorStyle: { color: '#6366f1' },
       },
       series: [
         {
-          name: '线索词',
+          name: '高风险词',
           type: 'scatter',
-          data: scatterData,
-          itemStyle: {
-            color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [
-              { offset: 0, color: '#f87171' },
-              { offset: 1, color: '#b91c1c' }
-            ]),
-            opacity: 0.8,
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowOffsetY: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          data: toSeries(highRisk, '#fca5a5', '#dc2626', 'rgba(220,38,38,0.35)'),
+          label: { ...labelBase, color: '#fca5a5' },
+          emphasis: { scale: 1.2 },
+          // 象限分割线（隐藏标签数字）
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            label: { show: false },
+            lineStyle: { color: 'rgba(100,116,139,0.25)', type: [6, 4], width: 1 },
+            data: [{ xAxis: 7 }, { yAxis: 70 }],
           },
-          label: {
-            show: true,
-            formatter: '{@[2]}',
-            position: 'top',
-            color: '#e5e7eb',
-            fontSize: 12
-          }
-        }
+          // 高危高意图区块
+          markArea: {
+            silent: true,
+            itemStyle: { color: 'rgba(220,38,38,0.05)', borderColor: 'rgba(220,38,38,0.12)', borderWidth: 1, borderType: 'dashed' },
+            data: [[{ xAxis: 7, yAxis: 70 }, { xAxis: 11, yAxis: 110 }]],
+            label: { show: true, position: 'insideBottomRight', color: 'rgba(252,165,165,0.35)', fontSize: 10, fontWeight: 500, formatter: '⚠ 高危·高意图' },
+          },
+        },
+        {
+          name: '中风险词',
+          type: 'scatter',
+          data: toSeries(midRisk, '#fde68a', '#d97706', 'rgba(217,119,6,0.35)'),
+          label: { ...labelBase, color: '#fbbf24' },
+          emphasis: { scale: 1.2 },
+        },
+        {
+          name: '低风险词',
+          type: 'scatter',
+          data: toSeries(lowRisk, '#6ee7b7', '#059669', 'rgba(5,150,105,0.3)'),
+          label: { ...labelBase, color: '#34d399' },
+          emphasis: { scale: 1.2 },
+        },
       ]
     });
   }
 };
+
 
 const resizeCharts = () => {
   wordCloudChart.value?.resize();
@@ -251,10 +351,6 @@ onUnmounted(() => {
 
 <template>
   <div class="keyword-container">
-    <div class="header">
-      <h1 class="title">动态敏感词库构建</h1>
-      <p class="subtitle">通过爬取社媒文本内容分词生成“涉枪爆黑话”词云，并结合私交敏感信号持续更新敏感词库。</p>
-    </div>
 
     <!-- Stats Cards -->
     <div class="stats-grid">
@@ -389,7 +485,7 @@ onUnmounted(() => {
 
 .chart-card {
   padding: 1.25rem;
-  height: 340px;
+  height: 358px;
   display: flex;
   flex-direction: column;
 }
