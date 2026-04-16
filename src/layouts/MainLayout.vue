@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   PieChart,
-  Map as MapIcon
+  Map as MapIcon,
+  Hash
 } from 'lucide-vue-next';
 import { useAuthStore } from '../store/auth';
 
@@ -26,6 +27,7 @@ const navItems = [
   { name: '线索展示', path: '/clue', icon: Lightbulb },
   { name: '数据分析', path: '/analysis', icon: PieChart },
   { name: 'IP分布地图', path: '/map', icon: MapIcon },
+  { name: '关键词分析', path: '/keyword', icon: Hash },
 ];
 
 const handleLogout = () => {

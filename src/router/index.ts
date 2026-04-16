@@ -8,6 +8,7 @@ import DataView from '../views/DataView.vue';
 import ClueView from '../views/ClueView.vue';
 import AnalysisView from '../views/AnalysisView.vue';
 import MapView from '../views/MapView.vue';
+import KeywordView from '../views/KeywordView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -56,6 +57,12 @@ const router = createRouter({
           path: 'map',
           name: 'map',
           component: MapView,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'keyword',
+          name: 'keyword',
+          component: KeywordView,
           meta: { requiresAuth: true }
         }
       ]
