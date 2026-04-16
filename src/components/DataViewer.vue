@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Database, Search, User, Heart, MessageSquare, Calendar, Plus } from 'lucide-vue-next';
 import { dataApi } from '../api';
 import type { Note, Comment } from '../types';
@@ -77,6 +77,16 @@ const loadNotes = async () => {
     loadingNotes.value = false;
   }
 };
+
+// 进入页面时自动加载
+onMounted(() => {
+  loadNotes();
+});
+
+// 切换平台时自动重新加载
+watch(platform, () => {
+  loadNotes();
+});
 
 const selectNote = async (note: Note) => {
   let id: string | number = '';
@@ -177,7 +187,7 @@ const openNoteDetail = (note: Note) => {
       <!-- Note List -->
       <div class="note-list">
         <div v-if="notes.length === 0" class="empty-hint">
-          {{ loadingNotes ? '⏳ 正在加载中...' : '请选择平台并点击"从数据库加载"' }}
+          {{ loadingNotes ? '⏳ 正在加载中...' : '暂无数据' }}
         </div>
         <template v-else>
           <div class="count-label">共 {{ filteredNotes.length }} 条记录</div>

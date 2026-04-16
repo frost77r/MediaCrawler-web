@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Database } from 'lucide-vue-next';
 import DataViewer from '../components/DataViewer.vue';
 </script>
 
