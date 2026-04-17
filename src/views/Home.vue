@@ -6,10 +6,8 @@ import {
   Activity,
   Lightbulb,
   TrendingUp,
-  Users,
   AlertTriangle,
-  BarChart3,
-  LayoutDashboard
+  BarChart3
 } from 'lucide-vue-next';
 
 const router = useRouter();

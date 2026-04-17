@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { 
   Search, Filter, CheckCircle2, 
   Clock, Trash2, Plus,
-  ChevronLeft, ChevronRight, Eye, ShieldAlert,
+  ChevronLeft, ChevronRight, Eye,
   Construction, PencilLine,
   Download, Users, ArrowRightLeft, Ban, ChevronDown, ChevronUp
 } from 'lucide-vue-next';

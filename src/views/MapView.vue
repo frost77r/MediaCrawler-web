@@ -36,7 +36,7 @@ const initMap = async () => {
   if (!mapContainerRef.value) return;
 
   try {
-    const { data: geoJson } = await axios.get('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+    const { data: geoJson } = await axios.get('/china.json');
     echarts.registerMap('china', geoJson);
 
     mapChart.value = echarts.init(mapContainerRef.value);
